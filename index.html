@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nexius AI Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --ink:#1b1b1f; --ink-2:#55555e; --line:#e4e1ea; --paper:#ffffff; --panel:#faf8fd;
+  --violet:#a100ff; --violet-deep:#460073; --violet-mid:#7500c0; --violet-tint:#f3e8ff;
+  --green:#e6f4ec; --amber:#fdf3e1; --red:#fbe9ec; --green-ink:#1d6b3f; --amber-ink:#8a5a00; --red-ink:#9b1c2c;
+  --radius:6px; --font:"IBM Plex Sans","Segoe UI",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45}
+body{display:flex;flex-direction:column}
+button,input,select,textarea{font:inherit;color:inherit}
+header{display:flex;align-items:center;gap:18px;padding:12px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}
+.brand img{height:28px;width:auto;display:block}
+.brand .mark{font-weight:600;color:var(--violet-deep);font-size:17px;letter-spacing:-.01em}
+.brand .divider{width:1px;height:28px;background:var(--line)}
+header h1{font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
+header .sub{color:var(--ink-2);font-size:13px}
+.key{display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap}
+.key input{width:280px;padding:7px 10px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+.key select{padding:7px 8px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+.key label{font-size:13px;color:var(--ink-2);display:flex;align-items:center;gap:6px}
+main{flex:1;display:grid;grid-template-columns:340px 1fr;min-height:0}
+aside{border-right:1px solid var(--line);background:var(--panel);padding:18px;overflow:auto}
+.work{display:flex;flex-direction:column;min-height:0}
+.tabs{display:flex;gap:2px;padding:10px 26px 0;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:transparent;padding:10px 14px;border-bottom:2px solid transparent;cursor:pointer;color:var(--ink-2);font-weight:500}
+.tabs button[aria-selected="true"]{color:var(--violet-deep);border-bottom-color:var(--violet)}
+.pane{display:none;flex:1;min-height:0;flex-direction:column}
+.pane.active{display:flex}
+.drop{border:1.5px dashed #c9b8e6;border-radius:var(--radius);padding:18px 16px;background:#fff;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--violet);background:var(--violet-tint)}
+.drop strong{display:block;font-weight:600;margin-bottom:4px}
+.drop small{color:var(--ink-2)}
+.drop input{display:none}
+h2{font-size:13px;font-weight:600;color:var(--ink-2);margin:20px 0 8px}
+.meta{font-size:13px;color:var(--ink-2)} .meta b{color:var(--ink);font-weight:600}
+.strip{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin:8px 0 4px}
+.strip button{border:0;border-radius:3px;padding:8px 2px;font-size:12px;line-height:1.1;cursor:pointer;background:var(--line);color:var(--ink)}
+.strip button b{display:block;font-size:13px;font-variant-numeric:tabular-nums}
+.g{background:var(--green)!important;color:var(--green-ink)!important} .a{background:var(--amber)!important;color:var(--amber-ink)!important} .r{background:var(--red)!important;color:var(--red-ink)!important}
+table.kpi{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+table.kpi td{padding:5px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+table.kpi td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500}
+.sheets label{display:flex;gap:8px;font-size:13px;padding:3px 0;align-items:center}
+.status{font-size:12px;color:var(--ink-2);margin-top:10px}
+.thread{flex:1;overflow:auto;padding:22px 26px;display:flex;flex-direction:column;gap:18px}
+.msg{max-width:80ch}
+.msg .who{font-size:12px;color:var(--ink-2);margin-bottom:4px}
+.msg.user{align-self:flex-end;background:var(--violet-tint);padding:12px 14px;border-radius:var(--radius)}
+.msg.assistant{border-left:3px solid var(--violet);padding-left:14px}
+.msg pre{white-space:pre-wrap;font-family:var(--font);margin:0;line-height:1.5}
+.msg.err{border-left-color:#c33}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:0 26px 10px}
+.chips button,.btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer}
+.chips button:hover,.btn:hover{border-color:var(--violet);color:var(--violet-deep)}
+.btn.primary{background:var(--violet-deep);color:#fff;border-color:var(--violet-deep);border-radius:var(--radius)}
+.compose{display:flex;gap:10px;padding:14px 26px 18px;border-top:1px solid var(--line);align-items:flex-end}
+.compose textarea{flex:1;min-height:56px;max-height:200px;resize:vertical;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+.compose button{padding:10px 18px;border:0;border-radius:var(--radius);background:var(--violet-deep);color:#fff;cursor:pointer;font-weight:500}
+.compose button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.compose button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.empty{color:var(--ink-2);max-width:62ch} .empty ol{padding-left:18px}
+.scroll{flex:1;overflow:auto;padding:18px 26px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;background:#fff}
+.card h3{font-size:13px;font-weight:600;margin:0 0 8px;color:var(--ink-2)}
+.card canvas{width:100%!important;height:230px!important}
+.card.wide{grid-column:1/-1} .card.wide canvas{height:260px!important}
+.wif{display:grid;grid-template-columns:330px 1fr;gap:18px}
+.controls label{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
+.controls label span.v{font-variant-numeric:tabular-nums;font-weight:500;text-align:right}
+.controls input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--violet)}
+.controls select{grid-column:1/-1;padding:5px 6px;border:1px solid var(--line);border-radius:4px;background:#fff}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.presets button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer}
+.presets button:hover{border-color:var(--violet)}
+.kcards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kcard{border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;background:#fff}
+.kcard small{display:block;color:var(--ink-2);font-size:12px}
+.kcard b{font-size:18px;font-variant-numeric:tabular-nums;font-weight:600}
+.kcard i{display:block;font-style:normal;font-size:12px;color:var(--ink-2)}
+table.yr{width:100%;border-collapse:collapse;font-size:13px}
+table.yr th,table.yr td{padding:6px 6px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+table.yr th:first-child,table.yr td:first-child{text-align:left}
+table.yr th{color:var(--ink-2);font-weight:500}
+.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+@media (max-width:1000px){main{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line)}.key input{width:100%}.grid2,.wif{grid-template-columns:1fr}.kcards{grid-template-columns:repeat(2,1fr)}}
+@media (prefers-color-scheme: dark){:root{--ink:#ecebf2;--ink-2:#b2afc0;--line:#3a3745;--paper:#17161c;--panel:#1e1c25;--violet-tint:#2b1b3f;--green:#12321f;--amber:#3d2c08;--red:#3d141b;--green-ink:#8fdcae;--amber-ink:#ffd27a;--red-ink:#ffa3ae} .drop,.key input,.key select,.compose textarea,.chips button,.compose button.ghost,.card,.kcard,.controls select,.presets button,.btn{background:#221f2b}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <img id="logo" src="assets/accenture-logo.svg" alt="Accenture" onerror="this.outerHTML='<span class=mark>Accenture</span>'">
+    <span class="divider"></span>
+    <div><h1>Nexius AI Analyst</h1><div class="sub">Belfius × Vilavi actuarial diligence · Scenario Tool companion</div></div>
+  </div>
+  <div class="key">
+    <label>Model <select id="model"><option value="claude-sonnet-5-5">claude-sonnet-5-5</option><option value="claude-opus-5-5">claude-opus-5-5</option><option value="claude-haiku-4-5-20251001">claude-haiku-4-5-20251001</option><option value="claude-fable-5-1">claude-fable-5-1</option></select></label>
+    <input id="apikey" type="password" placeholder="Anthropic API key (kept in this tab only)" autocomplete="off">
+    <label><input id="remember" type="checkbox"> remember for this tab</label>
+  </div>
+</header>
+<main>
+  <aside>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Load the Scenario Tool workbook">
+      <strong>Drop the Scenario Tool here</strong><small>Nexius_Scenario_Tool_v0.4.xlsx, or click to choose the file. The file is read in your browser; only the digest goes to Anthropic when you ask a question.</small>
+      <input id="file" type="file" accept=".xlsx">
+    </div>
+    <div id="model-panel" hidden>
+      <h2>Loaded workbook</h2>
+      <div class="meta" id="meta"></div>
+      <h2>Combined ratio 2032 by scenario</h2>
+      <div class="strip" id="strip"></div>
+      <div class="meta">Click a scenario to ask about it.</div>
+      <h2>Active scenario</h2>
+      <table class="kpi" id="kpi"></table>
+      <h2>Sheets sent as context</h2>
+      <div class="sheets" id="sheets"></div>
+      <div class="status" id="digest-size"></div>
+    </div>
+  </aside>
+  <section class="work">
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="chat">Chat</button>
+      <button role="tab" aria-selected="false" data-tab="charts">Charts</button>
+      <button role="tab" aria-selected="false" data-tab="whatif">What-if</button>
+    </div>
+    <div class="pane active" id="pane-chat">
+      <div class="thread" id="thread">
+        <div class="empty" id="empty">
+          <p>Three steps.</p>
+          <ol>
+            <li>Enter your Anthropic API key above. It is sent only to api.anthropic.com and never written to a file.</li>
+            <li>Load the Scenario Tool. The app reads the dashboard, scenarios, inputs, P&amp;L, reserves, capital, IFRS 17 and the Challenge Book, draws the charts and loads the what-if engine with the workbook's assumptions.</li>
+            <li>Ask. Claude answers from the workbook's values and from any what-if you run; it says when something is not in them.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="chips" id="chips">
+        <button data-q="Summarise the central scenario for the Belfius steering committee in ten lines, numbers included.">Steering summary</button>
+        <button data-q="Compare the eight scenarios on combined ratio 2032, cumulative result and economic value added. Which assumptions matter most?">Compare scenarios</button>
+        <button data-q="Explain the combined-ratio bridge from the Belfius reference (96.7 %) to the model and what each step depends on.">Explain the bridge</button>
+        <button data-q="Assess the reserving: IBNR level, best estimate, sensitivity to a 10 % strengthening and the share borne by Vilavi through the commission grid.">Reserves</button>
+        <button data-q="Is the commission grid an adequate alignment mechanism between Belfius and Vilavi? Quantify with the model and propose changes.">Commission grid</button>
+        <button data-q="List the inputs flagged as Accenture assumptions or Vilavi data required, ranked by their impact on the decision, with the data request to send to Vilavi.">Data to request</button>
+        <button data-q="Draft the Challenge Book entry for the churn assumption (34 %): MGA case, market evidence, independent view, confidence, financial impact, recommendation.">Challenge Book entry</button>
+      </div>
+      <div class="compose">
+        <textarea id="q" placeholder="Ask about the model… (Ctrl+Enter to send)" aria-label="Your question"></textarea>
+        <button class="ghost" id="export" title="Download the conversation as a text file">Export</button>
+        <button id="send">Ask</button>
+      </div>
+    </div>
+    <div class="pane" id="pane-charts">
+      <div class="scroll">
+        <div class="grid2">
+          <div class="card"><h3>Combined ratio, net, by year</h3><canvas id="c_cr"></canvas></div>
+          <div class="card"><h3>Result after tax and cumulative (€)</h3><canvas id="c_res"></canvas></div>
+          <div class="card"><h3>Claims reserves: case and IBNR (€)</h3><canvas id="c_res2"></canvas></div>
+          <div class="card"><h3>Marginal SCR and capital held (€)</h3><canvas id="c_cap"></canvas></div>
+          <div class="card wide"><h3>Combined ratio 2032, net, by scenario (workbook table) and current what-if</h3><canvas id="c_scen"></canvas></div>
+        </div>
+        <p class="status">Solid series: workbook (active scenario). Dashed: what-if engine, once you have changed something on the What-if tab.</p>
+      </div>
+    </div>
+    <div class="pane" id="pane-whatif">
+      <div class="scroll">
+        <div class="wif">
+          <div class="controls">
+            <div class="presets" id="presets"></div>
+            <label>Target loss ratio <span class="v" id="v_lr"></span><input type="range" id="w_lr" min="0.60" max="1.10" step="0.01"></label>
+            <label>Annual churn <span class="v" id="v_churn"></span><input type="range" id="w_churn" min="0.10" max="0.60" step="0.01"></label>
+            <label>New contracts per month <span class="v" id="v_nb"></span><input type="range" id="w_nb" min="1000" max="10000" step="250"></label>
+            <label>Premium level vs tariff <span class="v" id="v_prem"></span><input type="range" id="w_prem" min="0.80" max="1.20" step="0.01"></label>
+            <label>Frequency multiplier <span class="v" id="v_freq"></span><input type="range" id="w_freq" min="0.80" max="1.30" step="0.01"></label>
+            <label>Severity multiplier <span class="v" id="v_sev"></span><input type="range" id="w_sev" min="0.80" max="1.30" step="0.01"></label>
+            <label>New-business loss-ratio uplift <span class="v" id="v_up"></span><input type="range" id="w_up" min="0" max="0.30" step="0.01"></label>
+            <label>IRSA effect (loss-ratio points) <span class="v" id="v_irsa"></span><input type="range" id="w_irsa" min="0" max="0.03" step="0.0025"></label>
+            <label>Belfius fixed costs, year 1 (€) <span class="v" id="v_fix"></span><input type="range" id="w_fix" min="500000" max="4000000" step="100000"></label>
+            <label>Qualitative gate passed <span class="v" id="v_gate"></span><input type="range" id="w_gate" min="0" max="1" step="0.05"></label>
+            <label>Hurdle rate <span class="v" id="v_hurdle"></span><input type="range" id="w_hurdle" min="0.04" max="0.12" step="0.005"></label>
+            <label>Target solvency ratio <span class="v" id="v_solv"></span><input type="range" id="w_solv" min="1.0" max="2.5" step="0.05"></label>
+            <label>Loss-ratio lecture <select id="w_lecture"><option value="A">A – 82 % includes large claims</option><option value="B">B – 82 % attritional + 20 % large</option></select></label>
+            <label>Loss-ratio basis <select id="w_basis"><option value="Target">Target (grid)</option><option value="Bottom-up">Bottom-up (frequency × severity)</option></select></label>
+            <label>Reinsurance <select id="w_ri"><option>None</option><option>QS</option><option>XL</option><option>QS+XL</option></select></label>
+            <label>ACN relay segment <select id="w_acn"><option>No</option><option>Yes</option></select></label>
+            <div class="actions"><button class="btn" id="w_reset">Reset to workbook</button><button class="btn primary" id="w_ask">Ask Claude about this what-if</button></div>
+          </div>
+          <div>
+            <div class="kcards" id="kcards"></div>
+            <table class="yr" id="yrtab"></table>
+            <p class="status" id="w_note">The what-if engine is a JavaScript port of the workbook (portfolio, claims, reserving, commission grid, reinsurance, P&amp;L, Solvency II), validated to reproduce it to 15 significant digits. IFRS 17 is not ported; read it in the workbook.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+/* Nexius engine – JavaScript port of the Scenario Tool v0.4 (Portfolio, Claims, Reserving, Commission, Reinsurance, PnL, Solvency2).
+   Validated against the workbook's cached values. Inputs are read by key from the Inputs / Market sheets. */
+(function (root) {
+  const YEARS = [2027, 2028, 2029, 2030, 2031, 2032], NY = 6, NM = 72;
+  const LR_AXIS = [0.77, 0.82, 0.87, 0.90, 0.92, 0.94, 0.97, 1.02, 1.07];
+  const CH_AXIS = [0.19, 0.24, 0.29, 0.34, 0.39, 0.44, 0.49];
+  const GRID_DEFAULT = { // LR row -> churn ascending 19..49
+    "0.77": [5.99, 5.92, 5.87, 5.73, 5.59, 5.54, 5.46], "0.82": [5.97, 5.89, 5.84, 5.70, 5.57, 5.51, 5.43], "0.87": [5.85, 5.77, 5.72, 5.59, 5.46, 5.41, 5.33],
+    "0.9": [5.6, 5.5, 5.5, 5.4, 5.2, 5.2, 5.1], "0.92": [5.48, 5.41, 5.36, 5.25, 5.14, 5.09, 5.03], "0.94": [5.4, 5.3, 5.2, 5.1, 5.0, 5.0, 4.9],
+    "0.97": [5.10, 5.05, 5.01, 4.91, 4.82, 4.78, 4.72], "1.02": [4.24, 4.20, 4.18, 4.13, 4.07, 4.05, 4.01], "1.07": [3.00, 3.00, 3.00, 3.00, 3.00, 3.00, 3.00] };
+  function gridDefault() { return LR_AXIS.map(l => GRID_DEFAULT[String(l)].map(v => v / 100)); }
+  function ceilIdx(v, axis) { if (v <= axis[0]) return 0; if (v >= axis[axis.length - 1]) return axis.length - 1; for (let i = 0; i < axis.length; i++) { if (Math.abs(v - axis[i]) < 1e-12) return i; if (axis[i] > v) return i; } return axis.length - 1; }
+  const DEFAULTS = {
+    sw_lecture: "A", sw_acn: "No", sw_lrbasis: "Target", sw_ri: "None", sw_scen: 2,
+    in_launch: 4, in_nb_core: 5000, in_ramp: 12, in_nb_acn: 1250, in_prem_idx: 0.03, in_churn_core: 0.34, in_churn_acn: 0.34, in_hamon: 0,
+    in_mix_t: 0.32, in_mix_tp: 0.22, in_mix_tr: 0.46, in_prem_t: 200, in_prem_tp: 300, in_prem_tr: 420, in_prem_acn: 480, in_rc_share: 0.40,
+    in_lr_target: 0.82, in_large_load: 0.20, in_large_shareA: 0.244, in_nb_uplift: 0.10, in_irsa_pts: 0.01, in_bi_share: 0.35,
+    in_rf_core: 0.80, in_rc_core: 0.90, in_rf_acn: 1.05, in_rc_acn: 1.00, in_pen_tp: 1.0, in_large_thr_share: 0.60,
+    in_com_fixed: 0.03, in_gate_pass: 0.90, in_load_var: 0.05, in_fixed_cost: 2000000, in_fixed_growth: 0.02, in_attrib: 0.8,
+    in_yield: 0.025, in_disc: 0.025, in_ra: 0.06, in_tax: 0.25,
+    in_pm_0: 0.70, in_pm_1: 0.27, in_pm_2: 0.03, in_pb_0: 0.10, in_pb_1: 0.20, in_pb_2: 0.25, in_pb_3: 0.20, in_pb_4: 0.15, in_pb_5: 0.10,
+    in_rm_0: 0.95, in_rm_1: 1, in_rm_2: 1, in_rb_0: 0.60, in_rb_1: 0.85, in_rb_2: 0.95, in_rb_3: 0.98, in_rb_4: 1, in_rb_5: 1, in_ulae: 0.03, in_res_dev: 0.10,
+    in_qs_share: 0.20, in_qs_com: 0.15, in_xl_rol: 0.04, in_xl_rec: 0.40, in_ri_pd: 0.005, in_ri_lgd: 0.5,
+    in_cat_pct: 0.05, in_mkt_pct: 0.03, in_float_months: 1.5, in_vil_pd: 0.05, in_vil_lgd: 0.5, in_div: 0.30, in_solv_target: 1.5, in_hurdle: 0.08, in_rf: 0.025,
+    fa_f_rcmat: 26.2, fa_c_rcmat: 2155, fa_f_rcbi: 2.7, fa_c_rcbi: 25000, fa_f_dom: 78.7, fa_c_dom: 2250, fa_f_bdg: 60.6, fa_c_bdg: 744, fa_f_vol: 3.8, fa_c_vol: 4400,
+    fa_f_inc: 1.1, fa_c_inc: 6731, fa_f_cond: 1.0, fa_c_cond: 15000, fa_f_oth: 3.0, fa_c_oth: 1500, fa_infl: 0.035,
+    s2_sp_mvl: 0.10, s2_sr_mvl: 0.09, s2_sp_om: 0.08, s2_sr_om: 0.08, s2_corr_lob: 0.5, s2_np: 0.8, s2_corr_prcat: 0.25, s2_corr_nl_mkt: 0.25, s2_corr_nl_def: 0.5, s2_corr_mkt_def: 0.25, s2_op: 0.03,
+  };
+  const SCEN_DEFAULT = [
+    { name: "1 – Belfius reference", m: [1, 1, 1, 1, 1, 1, 1, 0, 0] }, { name: "2 – Accenture central", m: [1, 1, 1, 1, 1, 1, 1, 1, 1] },
+    { name: "3 – Adverse claims", m: [1, 1, 1, 1.10, 1.10, 1, 1, 1, 1] }, { name: "4 – High churn", m: [1, 1.176, 1, 1, 1, 1, 1, 1, 1] },
+    { name: "5 – Low volume", m: [0.80, 1, 1, 1, 1, 1, 1, 1, 1] }, { name: "6 – Podium price cut", m: [1, 1, 0.95, 1, 1, 1, 1, 1, 1] },
+    { name: "7 – Expense overrun", m: [1, 1, 1, 1, 1, 1.30, 0.70, 1, 1] }, { name: "8 – Combined stress", m: [0.80, 1.176, 0.97, 1.10, 1.05, 1.15, 0.85, 1, 1] }];
+  const MKEYS = ["m_vol", "m_churn", "m_prem", "m_freq", "m_sev", "m_fix", "m_gate", "m_uplift", "m_irsa"];
+
+  function run(inp, mult) {
+    const I = Object.assign({}, DEFAULTS, inp || {});
+    const M = Object.assign({ m_vol: 1, m_churn: 1, m_prem: 1, m_freq: 1, m_sev: 1, m_fix: 1, m_gate: 1, m_uplift: 1, m_irsa: 1 }, mult || {});
+    const grid = I.grid || gridDefault();
+    const lectureB = I.sw_lecture === "B", acnOn = I.sw_acn === "Yes", target = I.sw_lrbasis !== "Bottom-up";
+    const qsOn = (I.sw_ri === "QS" || I.sw_ri === "QS+XL") ? 1 : 0, xlOn = (I.sw_ri === "XL" || I.sw_ri === "QS+XL") ? 1 : 0;
+    // ---- Mix
+    const premCore = I.in_mix_t * I.in_prem_t + I.in_mix_tp * I.in_prem_tp + I.in_mix_tr * I.in_prem_tr, premAcn = I.in_prem_acn;
+    const penTP = (I.in_mix_tp + I.in_mix_tr) * I.in_pen_tp;
+    const guar = [["fa_f_rcmat", "fa_c_rcmat", 1, 0, 0], ["fa_f_rcbi", "fa_c_rcbi", 1, 1, 1], ["fa_f_dom", "fa_c_dom", I.in_mix_tr, 0, 0], ["fa_f_bdg", "fa_c_bdg", penTP, 0, 0], ["fa_f_vol", "fa_c_vol", penTP, 0, 0], ["fa_f_inc", "fa_c_inc", penTP, 0, 0], ["fa_f_cond", "fa_c_cond", 1, 1, 1], ["fa_f_oth", "fa_c_oth", penTP, 0, 0]];
+    let ppCore = 0, ppAcn = 0, biCore = 0, biAcn = 0, lgCore = 0, lgAcn = 0;
+    guar.forEach(([f, c, pen, bi, lg]) => { const pc = I[f] / 1000 * I[c] * pen * I.in_rf_core * I.in_rc_core, pa = I[f] / 1000 * I[c] * pen * I.in_rf_acn * I.in_rc_acn; ppCore += pc; ppAcn += pa; if (bi) { biCore += pc; biAcn += pa; } if (lg) { lgCore += pc; lgAcn += pa; } });
+    const mixBiCore = ppCore > 0 ? biCore / ppCore : 0, mixBiAcn = ppAcn > 0 ? biAcn / ppAcn : 0, mixLgCore = ppCore > 0 ? lgCore * I.in_large_thr_share / ppCore : 0, mixLgAcn = ppAcn > 0 ? lgAcn * I.in_large_thr_share / ppAcn : 0;
+    // ---- Portfolio (monthly)
+    const mCore = Math.min(0.99, I.in_churn_core * M.m_churn) / 12, mAcn = Math.min(0.99, I.in_churn_acn * M.m_churn) / 12;
+    const hCore = I.in_hamon * Math.pow(1 - mCore, 12), hAcn = I.in_hamon * Math.pow(1 - mAcn, 12);
+    const P = {}; ["year", "nbC", "nbA", "ifC", "ifA", "canC", "canA", "AC", "AA", "renC", "renA", "premC", "premA", "wpC", "wpA", "wpnbC", "wpnbA", "epC", "epA", "ep", "epnb", "uprC", "uprA", "upr", "ref", "nwp", "ifT", "canT", "wpT", "expoC", "expoA", "expoT"].forEach(k => P[k] = new Array(NM + 1).fill(0));
+    for (let t = 1; t <= NM; t++) {
+      const year = 2027 + Math.floor((t - 1) / 12); P.year[t] = year;
+      const launch = t >= I.in_launch ? 1 : 0, ramp = Math.max(0, Math.min(1, (t - I.in_launch + 1) / I.in_ramp)) * launch;
+      P.nbC[t] = I.in_nb_core * ramp * M.m_vol; P.nbA[t] = I.in_nb_acn * ramp * M.m_vol * (acnOn ? 1 : 0);
+      const spC = t > 12 ? hCore * P.nbC[t - 12] : 0, spA = t > 12 ? hAcn * P.nbA[t - 12] : 0;
+      P.ifC[t] = Math.max(0, P.ifC[t - 1] * (1 - mCore) + P.nbC[t] - spC); P.ifA[t] = Math.max(0, P.ifA[t - 1] * (1 - mAcn) + P.nbA[t] - spA);
+      P.canC[t] = P.ifC[t - 1] + P.nbC[t] - P.ifC[t]; P.canA[t] = P.ifA[t - 1] + P.nbA[t] - P.ifA[t];
+      P.AC[t] = t > 12 ? Math.pow(1 - mCore, 12) * (P.nbC[t - 12] + P.AC[t - 12]) : 0; P.AA[t] = t > 12 ? Math.pow(1 - mAcn, 12) * (P.nbA[t - 12] + P.AA[t - 12]) : 0;
+      P.renC[t] = (1 - I.in_hamon) * P.AC[t]; P.renA[t] = (1 - I.in_hamon) * P.AA[t];
+      const pidx = Math.pow(1 + I.in_prem_idx, year - 2027); P.premC[t] = premCore * pidx * M.m_prem; P.premA[t] = premAcn * pidx * M.m_prem;
+      P.wpC[t] = (P.nbC[t] + P.renC[t]) * P.premC[t]; P.wpA[t] = (P.nbA[t] + P.renA[t]) * P.premA[t]; P.wpnbC[t] = P.nbC[t] * P.premC[t]; P.wpnbA[t] = P.nbA[t] * P.premA[t];
+      let epC = 0, epA = 0, enC = 0, enA = 0, uC = 0, uA = 0;
+      for (let k = 0; k <= 11 && t - k >= 1; k++) { const dC = Math.pow(1 - mCore, k), dA = Math.pow(1 - mAcn, k); epC += P.wpC[t - k] * dC; epA += P.wpA[t - k] * dA; enC += P.wpnbC[t - k] * dC; enA += P.wpnbA[t - k] * dA; uC += P.wpC[t - k] * dC * (11 - k); uA += P.wpA[t - k] * dA * (11 - k); }
+      P.epC[t] = epC / 12; P.epA[t] = epA / 12; P.ep[t] = P.epC[t] + P.epA[t]; P.epnb[t] = (enC + enA) / 12; P.uprC[t] = uC / 12; P.uprA[t] = uA / 12; P.upr[t] = P.uprC[t] + P.uprA[t];
+      P.ref[t] = (P.uprC[t - 1] + P.wpC[t] - P.epC[t] - P.uprC[t]) + (P.uprA[t - 1] + P.wpA[t] - P.epA[t] - P.uprA[t]);
+      P.wpT[t] = P.wpC[t] + P.wpA[t]; P.nwp[t] = P.wpT[t] - P.ref[t]; P.ifT[t] = P.ifC[t] + P.ifA[t]; P.canT[t] = P.canC[t] + P.canA[t];
+      P.expoC[t] = P.ifC[t] / 12; P.expoA[t] = P.ifA[t] / 12; P.expoT[t] = P.ifT[t] / 12;
+    }
+    const sumY = (k, i) => { let s = 0; for (let t = 1; t <= NM; t++) if (P.year[t] === YEARS[i]) s += P[k][t]; return s; };
+    const avgY = (k, i) => sumY(k, i) / 12, decV = (k, i) => P[k][12 * (i + 1)];
+    // ---- Claims
+    const C = {}; ["ep", "epnb", "nbShare", "expo", "expoC", "wCore", "avgprem", "lrTBase", "lrT", "ppC", "ppA", "ppB", "lrBBase", "lrB", "biB", "lgB", "lr", "lrLg", "lrAt", "lrGrid", "biSh", "inc", "incLg", "incBi", "incMat", "nb", "ifEnd", "gwp", "refund", "churn"].forEach(k => C[k] = new Array(NY).fill(0));
+    for (let i = 0; i < NY; i++) {
+      C.ep[i] = sumY("ep", i); C.epnb[i] = sumY("epnb", i); C.nbShare[i] = C.ep[i] > 0 ? C.epnb[i] / C.ep[i] : 0;
+      C.expo[i] = sumY("expoT", i); C.expoC[i] = sumY("expoC", i); C.wCore[i] = C.expo[i] > 0 ? C.expoC[i] / C.expo[i] : 1; C.avgprem[i] = C.expo[i] > 0 ? C.ep[i] / C.expo[i] : 0;
+      C.lrTBase[i] = (I.in_lr_target + (lectureB ? I.in_large_load : 0)) * M.m_freq * M.m_sev;
+      C.lrT[i] = C.lrTBase[i] * (1 + I.in_nb_uplift * M.m_uplift * C.nbShare[i]) + I.in_irsa_pts * M.m_irsa;
+      const infl = Math.pow(1 + I.fa_infl, YEARS[i] - 2027);
+      C.ppC[i] = ppCore * infl * M.m_freq * M.m_sev; C.ppA[i] = ppAcn * infl * M.m_freq * M.m_sev; C.ppB[i] = C.wCore[i] * C.ppC[i] + (1 - C.wCore[i]) * C.ppA[i];
+      C.lrBBase[i] = C.avgprem[i] > 0 ? C.ppB[i] / C.avgprem[i] : 0; C.lrB[i] = C.lrBBase[i] * (1 + I.in_nb_uplift * M.m_uplift * C.nbShare[i]) + I.in_irsa_pts * M.m_irsa;
+      C.biB[i] = C.wCore[i] * mixBiCore + (1 - C.wCore[i]) * mixBiAcn; C.lgB[i] = C.wCore[i] * mixLgCore + (1 - C.wCore[i]) * mixLgAcn;
+      C.lr[i] = target ? C.lrT[i] : C.lrB[i];
+      C.lrLg[i] = target ? (lectureB ? I.in_large_load * M.m_freq * M.m_sev : C.lr[i] * I.in_large_shareA) : C.lr[i] * C.lgB[i];
+      C.lrAt[i] = C.lr[i] - C.lrLg[i]; C.lrGrid[i] = lectureB ? C.lrAt[i] : C.lr[i]; C.biSh[i] = target ? I.in_bi_share : C.biB[i];
+      C.inc[i] = C.ep[i] * C.lr[i]; C.incLg[i] = C.ep[i] * C.lrLg[i]; C.incBi[i] = C.inc[i] * C.biSh[i]; C.incMat[i] = C.inc[i] - C.incBi[i];
+      C.nb[i] = sumY("nbC", i) + sumY("nbA", i); C.ifEnd[i] = decV("ifT", i); C.gwp[i] = sumY("wpT", i); C.refund[i] = sumY("ref", i);
+      const avgIf = avgY("ifT", i); C.churn[i] = avgIf > 0 ? sumY("canT", i) / avgIf : 0;
+    }
+    // ---- Reserving
+    const pmInc = [I.in_pm_0, I.in_pm_1, I.in_pm_2, 0, 0, 0], pbInc = [I.in_pb_0, I.in_pb_1, I.in_pb_2, I.in_pb_3, I.in_pb_4, I.in_pb_5];
+    const cum = a => a.map((v, i) => a.slice(0, i + 1).reduce((x, y) => x + y, 0)); const pmCum = cum(pmInc), pbCum = cum(pbInc);
+    const pmRep = [I.in_rm_0, I.in_rm_1, I.in_rm_2, 1, 1, 1], pbRep = [I.in_rb_0, I.in_rb_1, I.in_rb_2, I.in_rb_3, I.in_rb_4, I.in_rb_5];
+    const disc = d => d === 0 ? 1 : Math.pow(1 + I.in_disc, -(d - 0.5));
+    const R = {}; ["paidMat", "paidBi", "paid", "osMat", "osBi", "os", "case", "ibnr", "ibnrSh", "beMat", "beBi", "be", "discEff", "ulae", "ulaeD", "beTot", "ra", "lic", "gaap", "biBeSh", "resRatio", "devOs", "devLr"].forEach(k => R[k] = new Array(NY).fill(0));
+    for (let i = 0; i < NY; i++) {
+      let pm = 0, pb = 0, pmPrev = 0, pbPrev = 0, osM = 0, osB = 0, cs = 0, ib = 0, beM = 0, beB = 0;
+      for (let a = 0; a <= i; a++) {
+        const d = i - a, uM = C.incMat[a], uB = C.incBi[a];
+        pm += uM * pmCum[d]; pb += uB * pbCum[d]; if (d > 0) { pmPrev += uM * pmCum[d - 1]; pbPrev += uB * pbCum[d - 1]; }
+        osM += uM * (1 - pmCum[d]); osB += uB * (1 - pbCum[d]); cs += uM * (pmRep[d] - pmCum[d]) + uB * (pbRep[d] - pbCum[d]); ib += uM * (1 - pmRep[d]) + uB * (1 - pbRep[d]);
+        let bm = 0, bb = 0; for (let k = 1; k <= 5 - d; k++) { bm += pmInc[d + k] * disc(k); bb += pbInc[d + k] * disc(k); } beM += uM * bm; beB += uB * bb;
+      }
+      R.paidMat[i] = pm - pmPrev; R.paidBi[i] = pb - pbPrev; R.paid[i] = R.paidMat[i] + R.paidBi[i]; R.osMat[i] = osM; R.osBi[i] = osB; R.os[i] = osM + osB; R.case[i] = cs; R.ibnr[i] = ib; R.ibnrSh[i] = R.os[i] > 0 ? ib / R.os[i] : 0;
+      R.beMat[i] = beM; R.beBi[i] = beB; R.be[i] = beM + beB; R.discEff[i] = R.os[i] - R.be[i]; R.ulae[i] = R.os[i] * I.in_ulae; R.ulaeD[i] = R.os[i] > 0 ? R.ulae[i] * R.be[i] / R.os[i] : 0;
+      R.beTot[i] = R.be[i] + R.ulaeD[i]; R.ra[i] = R.beTot[i] * I.in_ra; R.lic[i] = R.beTot[i] + R.ra[i]; R.gaap[i] = R.os[i] + R.ulae[i]; R.biBeSh[i] = R.be[i] > 0 ? R.beBi[i] / R.be[i] : 0;
+      R.resRatio[i] = C.ep[i] > 0 ? R.os[i] / C.ep[i] : 0; R.devOs[i] = I.in_res_dev * R.os[i]; R.devLr[i] = C.ep[i] > 0 ? R.devOs[i] / C.ep[i] : 0;
+    }
+    // ---- Commission
+    const K = {}; ["ilr", "ich", "rateGrid", "varr", "gate", "varExp", "rateExp", "comFixed", "comVar", "comTot", "devCom", "devShare"].forEach(k => K[k] = new Array(NY).fill(0));
+    const gateP = Math.min(1, I.in_gate_pass * M.m_gate);
+    for (let i = 0; i < NY; i++) {
+      K.ilr[i] = ceilIdx(C.lrGrid[i], LR_AXIS); K.ich[i] = ceilIdx(C.churn[i], CH_AXIS); K.rateGrid[i] = grid[K.ilr[i]][K.ich[i]];
+      K.varr[i] = Math.max(0, K.rateGrid[i] - I.in_com_fixed); K.gate[i] = gateP; K.varExp[i] = K.varr[i] * gateP; K.rateExp[i] = I.in_com_fixed + K.varExp[i];
+      K.comFixed[i] = C.ep[i] * I.in_com_fixed; K.comVar[i] = C.ep[i] * K.varExp[i]; K.comTot[i] = K.comFixed[i] + K.comVar[i];
+      const rd = grid[ceilIdx(C.lrGrid[i] + R.devLr[i], LR_AXIS)][K.ich[i]]; K.devCom[i] = rd; K.devShare[i] = R.devOs[i] > 0 ? Math.max(0, K.rateGrid[i] - rd) * C.ep[i] / R.devOs[i] : 0;
+    }
+    const rateTarget = grid[LR_AXIS.indexOf(0.82)][CH_AXIS.indexOf(0.34)];
+    // ---- Reinsurance
+    const RI = {}; ["cedWQs", "cedEQs", "xlPrem", "cedW", "cedE", "nep", "cedQs", "cedXl", "ced", "netInc", "cedCom", "recQs", "recXl", "rec", "netOs", "np"].forEach(k => RI[k] = new Array(NY).fill(0));
+    for (let i = 0; i < NY; i++) {
+      RI.np[i] = xlOn ? I.s2_np : 1; RI.cedWQs[i] = C.gwp[i] * I.in_qs_share * qsOn; RI.cedEQs[i] = C.ep[i] * I.in_qs_share * qsOn; RI.xlPrem[i] = C.gwp[i] * I.in_xl_rol * xlOn;
+      RI.cedW[i] = RI.cedWQs[i] + RI.xlPrem[i]; RI.cedE[i] = RI.cedEQs[i] + RI.xlPrem[i]; RI.nep[i] = C.ep[i] - RI.cedE[i];
+      RI.cedQs[i] = C.inc[i] * I.in_qs_share * qsOn; RI.cedXl[i] = C.incLg[i] * (1 - I.in_qs_share * qsOn) * I.in_xl_rec * xlOn; RI.ced[i] = RI.cedQs[i] + RI.cedXl[i]; RI.netInc[i] = C.inc[i] - RI.ced[i];
+      RI.cedCom[i] = RI.cedEQs[i] * I.in_qs_com; RI.recQs[i] = R.os[i] * I.in_qs_share * qsOn; RI.recXl[i] = R.osBi[i] * (1 - I.in_qs_share * qsOn) * I.in_xl_rec * xlOn; RI.rec[i] = RI.recQs[i] + RI.recXl[i]; RI.netOs[i] = R.os[i] - RI.rec[i];
+    }
+    // ---- PnL
+    const L = {}; ["gwp", "refund", "gwpNet", "cedW", "nwp", "ep", "cedE", "nep", "inc", "ced", "netInc", "upr", "crMarg", "prec", "dprec", "comF", "comV", "cedCom", "load", "fixed", "exp", "tech", "dac", "resGaap", "rec", "float", "bal", "inv", "pbt", "tax", "pat", "cum", "rLrG", "rLr", "rCom", "rExp", "rPrec", "rCr", "rFix", "rCrSs", "cfCum"].forEach(k => L[k] = new Array(NY).fill(0));
+    for (let i = 0; i < NY; i++) {
+      L.gwp[i] = C.gwp[i]; L.refund[i] = -C.refund[i]; L.gwpNet[i] = L.gwp[i] + L.refund[i]; L.cedW[i] = -RI.cedW[i]; L.nwp[i] = L.gwpNet[i] + L.cedW[i];
+      L.ep[i] = C.ep[i]; L.cedE[i] = -RI.cedE[i]; L.nep[i] = L.ep[i] + L.cedE[i]; L.inc[i] = -C.inc[i]; L.ced[i] = RI.ced[i]; L.netInc[i] = L.inc[i] + L.ced[i];
+      L.upr[i] = decV("upr", i); const n = Math.min(i + 1, NY - 1); L.crMarg[i] = C.lr[n] + K.rateExp[n] + I.in_load_var; L.prec[i] = Math.max(0, L.crMarg[i] - 1) * L.upr[i]; L.dprec[i] = -(L.prec[i] - (i > 0 ? L.prec[i - 1] : 0));
+      L.comF[i] = -K.comFixed[i]; L.comV[i] = -K.comVar[i]; L.cedCom[i] = RI.cedCom[i]; L.load[i] = -L.ep[i] * I.in_load_var; L.fixed[i] = -I.in_fixed_cost * Math.pow(1 + I.in_fixed_growth, YEARS[i] - 2027) * M.m_fix;
+      L.exp[i] = L.comF[i] + L.comV[i] + L.cedCom[i] + L.load[i] + L.fixed[i]; L.tech[i] = L.nep[i] + L.netInc[i] + L.dprec[i] + L.exp[i];
+      L.dac[i] = L.upr[i] * K.rateExp[i]; L.resGaap[i] = R.gaap[i]; L.rec[i] = -RI.rec[i]; L.float[i] = -L.gwpNet[i] / 12 * I.in_float_months;
+      L.bal[i] = L.upr[i] - L.dac[i] + L.prec[i] + L.resGaap[i] + L.rec[i] + L.float[i]; L.inv[i] = I.in_yield * Math.max(0, ((i > 0 ? L.bal[i - 1] : 0) + L.bal[i]) / 2);
+      L.pbt[i] = L.tech[i] + L.inv[i]; L.tax[i] = -L.pbt[i] * I.in_tax; L.pat[i] = L.pbt[i] + L.tax[i]; L.cum[i] = (i > 0 ? L.cum[i - 1] : 0) + L.pat[i];
+      L.rLrG[i] = L.ep[i] > 0 ? -L.inc[i] / L.ep[i] : 0; L.rLr[i] = L.nep[i] > 0 ? -L.netInc[i] / L.nep[i] : 0; L.rCom[i] = L.nep[i] > 0 ? -(L.comF[i] + L.comV[i] + L.cedCom[i]) / L.nep[i] : 0;
+      L.rExp[i] = L.nep[i] > 0 ? -(L.load[i] + L.fixed[i]) / L.nep[i] : 0; L.rPrec[i] = L.nep[i] > 0 ? -L.dprec[i] / L.nep[i] : 0; L.rCr[i] = L.rLr[i] + L.rCom[i] + L.rExp[i] + L.rPrec[i];
+      L.rFix[i] = L.nep[i] > 0 ? -L.fixed[i] / L.nep[i] : 0; L.rCrSs[i] = L.rLrG[i] + (L.ep[i] > 0 ? -(L.comF[i] + L.comV[i]) / L.ep[i] : 0) + I.in_load_var;
+    }
+    // ---- Solvency II
+    const S = {}; ["vp", "vr", "sNl", "scrPr", "scrCat", "scrNl", "scrDef", "scrMkt", "bscr", "scrOp", "scr", "scrM", "scrPct", "cap", "capRet", "coc", "eva", "roe", "contrib"].forEach(k => S[k] = new Array(NY).fill(0));
+    for (let i = 0; i < NY; i++) {
+      const nep = RI.nep[i], nepN = RI.nep[Math.min(i + 1, NY - 1)]; S.vp[i] = Math.max(nep, nepN); const vpM = S.vp[i] * I.in_rc_share, vpO = S.vp[i] - vpM;
+      S.vr[i] = RI.netOs[i] * (R.os[i] > 0 ? R.beTot[i] / R.os[i] : 1); const vrM = S.vr[i] * R.biBeSh[i], vrO = S.vr[i] - vrM;
+      const spM = I.s2_sp_mvl * RI.np[i], srM = I.s2_sr_mvl, spO = I.s2_sp_om, srO = I.s2_sr_om;
+      const sLob = (sp, sr, vp, vr) => (vp + vr) > 0 ? Math.sqrt((sp * vp) ** 2 + sp * vp * sr * vr + (sr * vr) ** 2) / (vp + vr) : 0;
+      const sM = sLob(spM, srM, vpM, vrM), sO = sLob(spO, srO, vpO, vrO), vM = vpM + vrM, vO = vpO + vrO, v = vM + vO;
+      S.sNl[i] = v > 0 ? Math.sqrt((sM * vM) ** 2 + (sO * vO) ** 2 + 2 * I.s2_corr_lob * sM * vM * sO * vO) / v : 0;
+      S.scrPr[i] = 3 * S.sNl[i] * v; S.scrCat[i] = I.in_cat_pct * nep; S.scrNl[i] = Math.sqrt(S.scrPr[i] ** 2 + S.scrCat[i] ** 2 + 2 * I.s2_corr_prcat * S.scrPr[i] * S.scrCat[i]);
+      const fl = -L.float[i]; S.scrDef[i] = RI.rec[i] * I.in_ri_pd * I.in_ri_lgd + fl * I.in_vil_pd * I.in_vil_lgd; S.scrMkt[i] = Math.max(0, L.bal[i]) * I.in_mkt_pct;
+      S.bscr[i] = Math.sqrt(S.scrNl[i] ** 2 + S.scrMkt[i] ** 2 + S.scrDef[i] ** 2 + 2 * I.s2_corr_nl_mkt * S.scrNl[i] * S.scrMkt[i] + 2 * I.s2_corr_nl_def * S.scrNl[i] * S.scrDef[i] + 2 * I.s2_corr_mkt_def * S.scrMkt[i] * S.scrDef[i]);
+      S.scrOp[i] = I.s2_op * L.gwp[i]; S.scr[i] = S.bscr[i] + S.scrOp[i]; S.scrM[i] = S.scr[i] * (1 - I.in_div); S.scrPct[i] = nep > 0 ? S.scrM[i] / nep : 0; S.cap[i] = S.scrM[i] * I.in_solv_target;
+      S.capRet[i] = S.cap[i] * I.in_rf * (1 - I.in_tax); S.coc[i] = -S.cap[i] * I.in_hurdle; S.eva[i] = L.pat[i] + S.capRet[i] + S.coc[i]; S.roe[i] = S.cap[i] > 0 ? (L.pat[i] + S.capRet[i]) / S.cap[i] : 0; S.contrib[i] = S.cap[i] + Math.max(0, -L.cum[i]);
+    }
+    // ---- analytical steady state (active multipliers)
+    const nbs = I.in_churn_core * M.m_churn, lrSs = (I.in_lr_target + (lectureB ? I.in_large_load : 0)) * M.m_freq * M.m_sev * (1 + I.in_nb_uplift * M.m_uplift * nbs) + I.in_irsa_pts * M.m_irsa;
+    const lrGridSs = lectureB ? lrSs - I.in_large_load * M.m_freq * M.m_sev : lrSs, chSs = Math.min(0.99, I.in_churn_core * M.m_churn);
+    const comSs = I.in_com_fixed + Math.max(0, grid[ceilIdx(lrGridSs, LR_AXIS)][ceilIdx(chSs, CH_AXIS)] - I.in_com_fixed) * gateP;
+    const epSs = 12 * I.in_nb_core * M.m_vol / chSs * premCore * M.m_prem; const crSs = lrSs + comSs + I.in_load_var + (epSs > 0 ? I.in_fixed_cost * M.m_fix / epSs : 0);
+    const firstPos = L.pat.findIndex(v => v >= 0), payback = L.cum.findIndex(v => v >= 0);
+    return { years: YEARS, C, R, K, RI, L, S, P, kpi: { crSs, firstPos: firstPos >= 0 ? YEARS[firstPos] : 9999, payback: payback >= 0 ? YEARS[payback] : 9999, peakLoss: Math.min(0, ...L.cum), peakContrib: Math.max(...S.contrib), rateTarget, premCore } };
+  }
+  const api = { run, DEFAULTS, SCEN_DEFAULT, MKEYS, YEARS, LR_AXIS, CH_AXIS, gridDefault, ceilIdx };
+  if (typeof module !== "undefined" && module.exports) module.exports = api; else root.NexiusEngine = api;
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+<script>
+const PROXY_URL = ""; // optional: URL of a proxy that holds the API key server-side (see deployment notes). Leave empty to call Anthropic directly with the key entered above.
+const SHEETS = [["Dashboard", true], ["Scenario_Compare", true], ["Inputs", true], ["PnL", true], ["Reserving", false], ["Solvency2", true], ["IFRS17_PAA", false], ["Challenge_Book", true], ["Checks", true], ["Scenarios", false], ["Commission", false], ["Funnel", false], ["Market", false]];
+const E = window.NexiusEngine;
+const state = { wb: null, digests: {}, history: [], fileName: "", inputs: null, scen: E.SCEN_DEFAULT.map(s => Object.fromEntries(E.MKEYS.map((k, i) => [k, s.m[i]]))), scenNames: E.SCEN_DEFAULT.map(s => s.name), base: null, wif: null, wifChanged: false, wbCr: null, wbSeries: {}, charts: {} };
+const $ = id => document.getElementById(id);
+const keyInput = $("apikey"), remember = $("remember");
+try { const k = sessionStorage.getItem("nexius_key"); if (k) { keyInput.value = k; remember.checked = true; } } catch (e) {}
+function persistKey() { try { if (remember.checked) sessionStorage.setItem("nexius_key", keyInput.value); else sessionStorage.removeItem("nexius_key"); } catch (e) {} }
+keyInput.addEventListener("change", persistKey); remember.addEventListener("change", persistKey);
+document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x === b)); document.querySelectorAll(".pane").forEach(p => p.classList.toggle("active", p.id === "pane-" + b.dataset.tab)); if (b.dataset.tab === "charts") drawCharts(); }));
+function showTab(t) { document.querySelector('.tabs button[data-tab="' + t + '"]').click(); }
+
+// ---------- workbook loading
+const drop = $("drop"), fileInput = $("file");
+drop.addEventListener("click", () => fileInput.click());
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) loadFile(f); });
+fileInput.addEventListener("change", () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
+function fmt(v, kind) {
+  if (typeof v !== "number") return v == null ? "–" : String(v);
+  if (kind === "pct") return (v * 100).toFixed(1) + " %"; if (kind === "pct2") return (v * 100).toFixed(2) + " %";
+  if (kind === "year") return v === 9999 ? "after 2032" : String(v); if (kind === "x") return v.toFixed(2) + "×";
+  return Math.round(v).toLocaleString("en-GB");
+}
+function sheetText(ws, maxChars) {
+  let csv = XLSX.utils.sheet_to_csv(ws, { blankrows: false, FS: " | " });
+  csv = csv.split("\n").map(l => l.replace(/( \| )+$/g, "")).filter(l => l.replace(/[ |]/g, "").length).join("\n");
+  return csv.length > maxChars ? csv.slice(0, maxChars) + "\n[truncated]" : csv;
+}
+const enc = (r, c) => XLSX.utils.encode_cell({ r, c });
+function cellVal(ws, r, c) { const x = ws[enc(r, c)]; return x ? x.v : null; }
+function findRow(ws, label, col) { const rg = XLSX.utils.decode_range(ws["!ref"]); for (let r = rg.s.r; r <= rg.e.r; r++) { const c = ws[enc(r, col)]; if (c && String(c.v).trim() === label) return r; } return -1; }
+function rowVals(ws, label, col, n) { if (!ws) return null; const r = findRow(ws, label, 1); if (r < 0) return null; return Array.from({ length: n }, (_, i) => cellVal(ws, r, col + i)); }
+function readKeys(ws) { const o = {}; if (!ws) return o; const rg = XLSX.utils.decode_range(ws["!ref"]); for (let r = rg.s.r; r <= rg.e.r; r++) { const k = ws[enc(r, 5)], v = ws[enc(r, 2)]; if (k && v !== undefined && v.v !== undefined) o[k.v] = v.v; } return o; }
+async function loadFile(f) {
+  const buf = await f.arrayBuffer();
+  state.wb = XLSX.read(buf, { type: "array" }); state.fileName = f.name; state.digests = {};
+  const sheetsDiv = $("sheets"); sheetsDiv.innerHTML = "";
+  SHEETS.forEach(([name, on]) => { const ws = state.wb.Sheets[name]; if (!ws) return; state.digests[name] = sheetText(ws, name === "Reserving" ? 14000 : 9000);
+    const lab = document.createElement("label"); const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = on; cb.dataset.sheet = name; cb.addEventListener("change", updateSize);
+    lab.appendChild(cb); lab.appendChild(document.createTextNode(name + " (" + Math.round(state.digests[name].length / 1000) + " k chars)")); sheetsDiv.appendChild(lab); });
+  const sc = state.wb.Sheets["Scenario_Compare"], dash = state.wb.Sheets["Dashboard"], chk = state.wb.Sheets["Checks"], pl = state.wb.Sheets["PnL"], rs = state.wb.Sheets["Reserving"], s2 = state.wb.Sheets["Solvency2"];
+  let meta = "<b>" + f.name + "</b>";
+  if (dash) { const r = findRow(dash, "Active scenario", 1); if (r >= 0) meta += "<br>Active scenario: <b>" + cellVal(dash, r, 3) + "</b>"; }
+  if (chk) { const r = findRow(chk, "Overall status", 1); if (r >= 0) meta += "<br>Checks: <b>" + cellVal(chk, r, 3) + "</b>"; }
+  try {
+    const inp = Object.assign({}, readKeys(state.wb.Sheets["Market"]), readKeys(state.wb.Sheets["Inputs"]));
+    const wc = state.wb.Sheets["Commission"]; let g0 = null;
+    if (wc) { const rg = XLSX.utils.decode_range(wc["!ref"]); for (let r = rg.s.r; r <= rg.e.r && !g0; r++) for (let c = rg.s.c; c <= rg.e.c; c++) { const x = wc[enc(r, c)]; if (x && String(x.v).startsWith("LR \\ churn")) { g0 = { r, c }; break; } } }
+    if (g0) { inp.grid = []; for (let i = 0; i < 9; i++) { inp.grid.push([]); for (let j = 0; j < 7; j++) inp.grid[i].push(cellVal(wc, g0.r + 1 + i, g0.c + 1 + j)); } }
+    const wsn = state.wb.Sheets["Scenarios"]; if (wsn) { state.scen = []; state.scenNames = []; for (let i = 0; i < 8; i++) { const m = {}; E.MKEYS.forEach((k, j) => m[k] = cellVal(wsn, 5 + i, 2 + j)); state.scen.push(m); state.scenNames.push(String(cellVal(wsn, 5 + i, 1))); } }
+    state.inputs = inp; meta += "<br>What-if engine: <b>loaded from the workbook (" + Object.keys(inp).length + " assumptions)</b>";
+  } catch (e) { console.warn("engine inputs", e); state.inputs = null; meta += "<br>What-if engine: <b>workbook keys not found, defaults used</b>"; }
+  $("meta").innerHTML = meta;
+  state.wbSeries = { cr: rowVals(pl, "Combined ratio, net (incl. change in PREC)", 3, 6), pat: rowVals(pl, "Result after tax", 3, 6), cum: rowVals(pl, "Cumulative result after tax", 3, 6), caseR: rowVals(rs, "of which case reserves", 3, 6), ibnr: rowVals(rs, "of which IBNR (incl. IBNER)", 3, 6), scr: rowVals(s2, "Marginal SCR after group diversification", 3, 6), cap: rowVals(s2, "Capital held (marginal SCR × target solvency ratio)", 3, 6) };
+  const strip = $("strip"); strip.innerHTML = ""; state.wbCr = null;
+  if (sc) { const r = findRow(sc, "Combined ratio 2032, net", 1); if (r >= 0) state.wbCr = Array.from({ length: 8 }, (_, i) => cellVal(sc, r, 3 + i)); }
+  (state.wbCr || []).forEach((v, i) => { const b = document.createElement("button"); b.className = typeof v === "number" ? (v < 0.97 ? "g" : v <= 1.03 ? "a" : "r") : ""; b.innerHTML = "<b>" + fmt(v, "pct") + "</b>" + (i + 1); b.title = state.scenNames[i];
+    b.addEventListener("click", () => { $("q").value = "Explain scenario " + (i + 1) + " (" + state.scenNames[i] + "): what changes versus the Belfius reference, and what it means for the decision."; showTab("chat"); $("q").focus(); }); strip.appendChild(b); });
+  const kpi = $("kpi"); kpi.innerHTML = "";
+  if (dash) [["Steady-state CR (analytical, active scenario)", "pct"], ["Combined ratio 2032, net", "pct"], ["First year with positive result", "year"], ["Payback year (cumulative ≥ 0)", "year"], ["Peak cumulative loss (€)", "eur"], ["Peak capital contributions (€)", "eur"], ["In-force 2032", "eur"], ["Gross written premium 2032 (€)", "eur"], ["Capital held 2032 (€)", "eur"], ["Economic value added 2032 (€)", "eur"], ["IBNR share of reserves 2032", "pct"]].forEach(([lab, kind]) => {
+    for (const col of [1, 5]) { const r = findRow(dash, lab, col); if (r >= 0) { const tr = document.createElement("tr"); tr.innerHTML = "<td>" + lab.replace(" (€)", "") + "</td><td>" + fmt(cellVal(dash, r, col + 2), kind) + "</td>"; kpi.appendChild(tr); break; } } });
+  $("model-panel").hidden = false; updateSize();
+  initWhatIf(); drawCharts();
+  addMsg("assistant", "Workbook loaded: " + f.name + ". Charts and the what-if engine now use its assumptions. Ask a question or pick one below.");
+}
+function selectedDigest() { const parts = []; document.querySelectorAll("#sheets input:checked").forEach(cb => { const n = cb.dataset.sheet; parts.push("### Sheet " + n + "\n" + state.digests[n]); }); return parts.join("\n\n"); }
+function updateSize() { const d = selectedDigest(); $("digest-size").textContent = "Context sent with each question: about " + Math.round(d.length / 1000) + " k characters" + (state.wifChanged ? " plus the current what-if." : "."); }
+
+// ---------- what-if engine
+function baseInputs() { return Object.assign({}, E.DEFAULTS, state.inputs || {}); }
+function activeScenIdx() { const n = parseInt(baseInputs().sw_scen, 10); return Number.isFinite(n) && n >= 1 && n <= 8 ? n - 1 : 1; }
+function setLevers(I, m) {
+  $("w_lr").value = I.in_lr_target; $("w_churn").value = I.in_churn_core * m.m_churn; $("w_nb").value = I.in_nb_core * m.m_vol; $("w_prem").value = m.m_prem; $("w_freq").value = m.m_freq; $("w_sev").value = m.m_sev;
+  $("w_up").value = I.in_nb_uplift * m.m_uplift; $("w_irsa").value = I.in_irsa_pts * m.m_irsa; $("w_fix").value = I.in_fixed_cost * m.m_fix; $("w_gate").value = Math.min(1, I.in_gate_pass * m.m_gate);
+}
+function initWhatIf() {
+  const I = baseInputs(); const m = state.scen[activeScenIdx()];
+  setLevers(I, m); $("w_hurdle").value = I.in_hurdle; $("w_solv").value = I.in_solv_target; $("w_lecture").value = I.sw_lecture; $("w_basis").value = I.sw_lrbasis; $("w_ri").value = I.sw_ri; $("w_acn").value = I.sw_acn;
+  const pres = $("presets"); pres.innerHTML = "";
+  state.scen.forEach((mm, i) => { const b = document.createElement("button"); b.textContent = state.scenNames[i]; b.addEventListener("click", () => { setLevers(baseInputs(), state.scen[i]); runWhatIf(true); }); pres.appendChild(b); });
+  state.base = E.run(I, m); state.wifChanged = false; runWhatIf(false);
+}
+function wifInputs() {
+  const B = baseInputs(), I = Object.assign({}, B);
+  I.in_lr_target = +$("w_lr").value; I.in_churn_core = +$("w_churn").value; I.in_churn_acn = +$("w_churn").value; I.in_nb_core = +$("w_nb").value; I.in_nb_acn = B.in_nb_acn * (+$("w_nb").value / (B.in_nb_core || 1));
+  I.in_nb_uplift = +$("w_up").value; I.in_irsa_pts = +$("w_irsa").value; I.in_fixed_cost = +$("w_fix").value; I.in_gate_pass = +$("w_gate").value; I.in_hurdle = +$("w_hurdle").value; I.in_solv_target = +$("w_solv").value;
+  I.sw_lecture = $("w_lecture").value; I.sw_lrbasis = $("w_basis").value; I.sw_ri = $("w_ri").value; I.sw_acn = $("w_acn").value;
+  const m = { m_vol: 1, m_churn: 1, m_prem: +$("w_prem").value, m_freq: +$("w_freq").value, m_sev: +$("w_sev").value, m_fix: 1, m_gate: 1, m_uplift: 1, m_irsa: 1 };
+  return { I, m };
+}
+function runWhatIf(changed) {
+  ["lr", "churn", "nb", "prem", "freq", "sev", "up", "irsa", "fix", "gate", "hurdle", "solv"].forEach(k => { const v = +$("w_" + k).value; $("v_" + k).textContent = (k === "nb" || k === "fix") ? fmt(v) : (["prem", "freq", "sev"].includes(k) ? fmt(v, "x") : (k === "irsa" ? fmt(v, "pct2") : fmt(v, "pct"))); });
+  const { I, m } = wifInputs(); state.wif = E.run(I, m); if (changed) state.wifChanged = true;
+  const r = state.wif, b = state.base, k = r.kpi, d = (a, c) => a - c;
+  const cards = [["Steady-state CR", fmt(k.crSs, "pct"), "workbook " + fmt(b.kpi.crSs, "pct")], ["CR 2032, net", fmt(r.L.rCr[5], "pct"), "workbook " + fmt(b.L.rCr[5], "pct")], ["First positive year", fmt(k.firstPos, "year"), "workbook " + fmt(b.kpi.firstPos, "year")], ["Payback", fmt(k.payback, "year"), "workbook " + fmt(b.kpi.payback, "year")],
+    ["Cumulative result 2032", fmt(r.L.cum[5]) + " €", "Δ " + fmt(d(r.L.cum[5], b.L.cum[5])) + " €"], ["Peak capital contributions", fmt(k.peakContrib) + " €", "Δ " + fmt(d(k.peakContrib, b.kpi.peakContrib)) + " €"], ["Marginal SCR 2032", fmt(r.S.scrM[5]) + " €", fmt(r.S.scrPct[5], "pct") + " of NEP"], ["EVA 2032", fmt(r.S.eva[5]) + " €", "Δ " + fmt(d(r.S.eva[5], b.S.eva[5])) + " €"]];
+  $("kcards").innerHTML = cards.map(([a, v, s]) => "<div class='kcard'><small>" + a + "</small><b>" + v + "</b><i>" + s + "</i></div>").join("");
+  const rows = [["In-force (year end)", r.C.ifEnd, "n"], ["Gross written premium", r.L.gwp, "n"], ["Net earned premium", r.L.nep, "n"], ["Loss ratio (gross)", r.C.lr, "pct"], ["Commission rate", r.K.rateExp, "pct2"], ["Combined ratio, net", r.L.rCr, "pct"], ["Result after tax", r.L.pat, "n"], ["Cumulative result", r.L.cum, "n"], ["Case reserves", r.R.case, "n"], ["IBNR", r.R.ibnr, "n"], ["Best estimate incl. ULAE", r.R.beTot, "n"], ["Marginal SCR", r.S.scrM, "n"], ["Capital held", r.S.cap, "n"], ["Economic value added", r.S.eva, "n"]];
+  $("yrtab").innerHTML = "<tr><th>Year</th>" + E.YEARS.map(y => "<th>" + y + "</th>").join("") + "</tr>" + rows.map(([l, a, kind]) => "<tr><td>" + l + "</td>" + a.map(v => "<td>" + fmt(v, kind) + "</td>").join("") + "</tr>").join("");
+  updateSize(); if ($("pane-charts").classList.contains("active")) drawCharts();
+}
+["lr", "churn", "nb", "prem", "freq", "sev", "up", "irsa", "fix", "gate", "hurdle", "solv"].forEach(k => $("w_" + k).addEventListener("input", () => runWhatIf(true)));
+["w_lecture", "w_basis", "w_ri", "w_acn"].forEach(id => $(id).addEventListener("change", () => runWhatIf(true)));
+$("w_reset").addEventListener("click", () => initWhatIf());
+$("w_ask").addEventListener("click", () => { state.wifChanged = true; showTab("chat"); ask("Analyse the current what-if (levers and results in the context) against the workbook's active scenario: what changed, why, and what it means for the Belfius decision."); });
+function wifSummary() {
+  if (!state.wif || !state.base) return "";
+  const { I, m } = wifInputs(); const r = state.wif;
+  return "## Current what-if (JavaScript port of the model, run in the app)\nLevers: target LR " + fmt(I.in_lr_target, "pct") + ", churn " + fmt(I.in_churn_core, "pct") + ", NB/month " + fmt(I.in_nb_core) + ", premium level " + fmt(m.m_prem, "x") + ", frequency " + fmt(m.m_freq, "x") + ", severity " + fmt(m.m_sev, "x") + ", NB uplift " + fmt(I.in_nb_uplift, "pct") + ", IRSA " + fmt(I.in_irsa_pts, "pct2") + ", fixed costs " + fmt(I.in_fixed_cost) + " EUR, gate " + fmt(I.in_gate_pass, "pct") + ", hurdle " + fmt(I.in_hurdle, "pct") + ", solvency target " + fmt(I.in_solv_target, "pct") + ", lecture " + I.sw_lecture + ", basis " + I.sw_lrbasis + ", reinsurance " + I.sw_ri + ", ACN " + I.sw_acn + ".\n" +
+    "Results by year 2027-2032: CR net " + r.L.rCr.map(v => fmt(v, "pct")).join(", ") + "; result after tax " + r.L.pat.map(v => fmt(v)).join(", ") + "; cumulative " + r.L.cum.map(v => fmt(v)).join(", ") + "; IBNR " + r.R.ibnr.map(v => fmt(v)).join(", ") + "; marginal SCR " + r.S.scrM.map(v => fmt(v)).join(", ") + "; EVA " + r.S.eva.map(v => fmt(v)).join(", ") + ".\n" +
+    "KPIs: steady-state CR " + fmt(r.kpi.crSs, "pct") + ", first positive year " + fmt(r.kpi.firstPos, "year") + ", payback " + fmt(r.kpi.payback, "year") + ", peak loss " + fmt(r.kpi.peakLoss) + " EUR, peak capital contributions " + fmt(r.kpi.peakContrib) + " EUR.\n" +
+    "Workbook active scenario for comparison: CR 2032 " + fmt(state.base.L.rCr[5], "pct") + ", cumulative 2032 " + fmt(state.base.L.cum[5]) + " EUR, EVA 2032 " + fmt(state.base.S.eva[5]) + " EUR.";
+}
+
+// ---------- charts
+function drawCharts() {
+  if (!window.Chart) return;
+  const years = E.YEARS.map(String), wb = state.wbSeries || {}, w = state.wifChanged ? state.wif : null, b = state.base;
+  const violet = "#7500c0", violet2 = "#a100ff", grey = "#8c8c8c", green = "#1d6b3f", red = "#9b1c2c";
+  const pct = { ticks: { callback: v => Math.round(v * 100) + " %" } };
+  function make(id, cfg) { if (state.charts[id]) state.charts[id].destroy(); state.charts[id] = new Chart($(id), cfg); }
+  const ds = (label, data, color, extra) => Object.assign({ label, data, borderColor: color, backgroundColor: color, borderWidth: 2, pointRadius: 3, tension: 0.2 }, extra || {});
+  const src = k => wb[k] || (b ? { cr: b.L.rCr, pat: b.L.pat, cum: b.L.cum, caseR: b.R.case, ibnr: b.R.ibnr, scr: b.S.scrM, cap: b.S.cap }[k] : []);
+  make("c_cr", { type: "line", data: { labels: years, datasets: [ds("Workbook – net CR", src("cr"), violet), ...(w ? [ds("What-if – net CR", w.L.rCr, red, { borderDash: [6, 4] })] : [])] }, options: { scales: { y: pct }, plugins: { legend: { position: "bottom" } } } });
+  make("c_res", { type: "bar", data: { labels: years, datasets: [{ label: "Result after tax", data: src("pat"), backgroundColor: violet2 }, { label: "Cumulative", data: src("cum"), backgroundColor: grey }, ...(w ? [ds("What-if cumulative", w.L.cum, red, { type: "line", borderDash: [6, 4], backgroundColor: "transparent" })] : [])] }, options: { plugins: { legend: { position: "bottom" } } } });
+  make("c_res2", { type: "bar", data: { labels: years, datasets: [{ label: "Case", data: src("caseR"), backgroundColor: violet, stack: "a" }, { label: "IBNR", data: src("ibnr"), backgroundColor: violet2, stack: "a" }, ...(w ? [ds("What-if outstanding", w.R.os, red, { type: "line", borderDash: [6, 4], backgroundColor: "transparent" })] : [])] }, options: { scales: { x: { stacked: true }, y: { stacked: true } }, plugins: { legend: { position: "bottom" } } } });
+  make("c_cap", { type: "bar", data: { labels: years, datasets: [{ label: "Marginal SCR", data: src("scr"), backgroundColor: violet }, { label: "Capital held", data: src("cap"), backgroundColor: grey }, ...(w ? [ds("What-if capital", w.S.cap, red, { type: "line", borderDash: [6, 4], backgroundColor: "transparent" })] : [])] }, options: { plugins: { legend: { position: "bottom" } } } });
+  const scenCr = state.wbCr || state.scen.map(m => E.run(baseInputs(), m).L.rCr[5]);
+  const labels = state.scenNames.map(n => n.split(" – ")[1] || n).concat(w ? ["What-if"] : []); const vals = scenCr.concat(w ? [w.L.rCr[5]] : []);
+  make("c_scen", { type: "bar", data: { labels, datasets: [{ label: "CR 2032", data: vals, backgroundColor: vals.map((v, i) => (i === vals.length - 1 && w) ? red : (v < 0.97 ? green : v <= 1.03 ? "#c98f00" : "#c33")) }] }, options: { scales: { y: pct }, plugins: { legend: { display: false } } } });
+}
+
+// ---------- chat
+function systemPrompt() {
+  return "You are a senior P&C actuary and partnership adviser supporting Accenture's independent diligence for Belfius Insurance on the Nexius programme: Belfius would carry the risk of a French digital motor product designed, priced, distributed and serviced by Vilavi (an MGA / broker); a TPA handles bodily-injury and large claims. The user works for Accenture. Answer from the workbook extract and the what-if below (values are the workbook's current cached values; pipes separate columns; years 2027-2032). Quote numbers with their sheet and line. Separate facts (data-room values) from Accenture assumptions (flagged 'ASSUMPTION' or 'REQUIRED' in the Inputs source column). When a question needs something absent, say so and suggest which cell or data request would answer it. Be concise, structured, and write in the user's language.\n\n" + (state.wb ? "## Workbook extract (" + state.fileName + ")\n\n" + selectedDigest() : "## No workbook loaded yet. Answer from general knowledge and from the what-if engine defaults; ask the user to load the Scenario Tool for model-specific questions.") + (state.wifChanged ? "\n\n" + wifSummary() : "");
+}
+function addMsg(role, text, err) { $("empty")?.remove(); const d = document.createElement("div"); d.className = "msg " + role + (err ? " err" : ""); d.innerHTML = "<div class='who'>" + (role === "user" ? "You" : "Claude") + "</div><pre></pre>"; d.querySelector("pre").textContent = text; $("thread").appendChild(d); $("thread").scrollTop = $("thread").scrollHeight; return d; }
+async function ask(q) {
+  q = (q || $("q").value).trim(); if (!q) return;
+  const key = keyInput.value.trim();
+  if (!key && !PROXY_URL) { addMsg("assistant", "Enter your Anthropic API key first (top right).", true); return; }
+  $("q").value = ""; addMsg("user", q); state.history.push({ role: "user", content: q });
+  const wait = addMsg("assistant", "…"); $("send").disabled = true;
+  try {
+    const body = JSON.stringify({ model: $("model").value, max_tokens: 2500, system: systemPrompt(), messages: state.history });
+    const headers = { "content-type": "application/json", "anthropic-version": "2023-06-01" };
+    if (!PROXY_URL) { headers["x-api-key"] = key; headers["anthropic-dangerous-direct-browser-access"] = "true"; }
+    const res = await fetch(PROXY_URL || "https://api.anthropic.com/v1/messages", { method: "POST", headers, body });
+    const data = await res.json();
+    if (!res.ok) throw new Error((data.error && data.error.message) || ("HTTP " + res.status));
+    const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
+    wait.querySelector("pre").textContent = text; state.history.push({ role: "assistant", content: text });
+  } catch (e) { wait.classList.add("err"); wait.querySelector("pre").textContent = "Request failed: " + e.message + ". Check the key, the model name and your network."; state.history.pop(); }
+  finally { $("send").disabled = false; $("thread").scrollTop = $("thread").scrollHeight; }
+}
+$("send").addEventListener("click", () => ask());
+$("q").addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) ask(); });
+document.querySelectorAll("#chips button").forEach(b => b.addEventListener("click", () => ask(b.dataset.q)));
+$("export").addEventListener("click", () => { const txt = state.history.map(m => (m.role === "user" ? "You: " : "Claude: ") + m.content).join("\n\n"); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt || "No conversation yet."], { type: "text/plain" })); a.download = "Nexius_AI_Analyst_conversation.txt"; a.click(); });
+initWhatIf();
+</script>
+</body>
+</html>
