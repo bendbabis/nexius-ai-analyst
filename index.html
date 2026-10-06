@@ -144,6 +144,42 @@ dialog p{font-size:12px;color:var(--ink-3)}
 table.heat{border-collapse:collapse;font-size:12px;width:100%} table.heat th,table.heat td{border:1px solid #fff;padding:6px 4px;text-align:center} table.heat th{background:var(--surface);font-weight:500;color:var(--ink-2)}
 .anch td.gap{font-weight:600}
 @media print{.top .actions,.subnav,.drawer,.ptools,section#params,button.ask,#reset-btn,.presets,.levers,.mcctl{display:none!important}.top{position:static}main{max-width:none;padding:0 10px}section{break-inside:avoid;margin-bottom:24px}.card{box-shadow:none}body{font-size:12px}}
+/* v9 visual system */
+body.exec .subnav a.an{display:none}
+@media (max-width:1500px){.brand h1 small{display:none}.ticker .tk:nth-child(n+5){display:none}.ticker .tk{min-width:80px}}
+@media (max-width:1250px){.ticker .tk:nth-child(n+4){display:none}}
+:root{--radius-l:12px}
+.top .in{padding:8px 24px;gap:14px}
+.brand h1{font-size:14px} .brand h1 small{font-size:11px}
+.ticker .tk{padding:3px 9px;min-width:88px} .ticker .tk b{font-size:12.5px} .ticker .badge{padding:5px 10px;font-size:12.5px}
+.subnav{padding:4px 24px 8px;align-items:center;gap:6px}
+.subnav a{font-size:12px;padding:4px 9px}
+.viewtog{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-right:6px}
+.viewtog button{border:0;background:#fff;padding:4px 10px;font-size:12px;color:var(--ink-2)} .viewtog button.on{background:var(--violet-deep);color:#fff}
+main{padding-top:16px}
+section{margin:0 0 36px}
+section.band{background:var(--surface);border-radius:var(--radius-l);padding:18px 20px 20px;margin:0 0 28px}
+.sec-h{margin:0 0 14px;padding-bottom:10px} .sec-h h2{font-size:19px;font-weight:700} .sec-h p{font-size:12.5px}
+.card{box-shadow:none;border-radius:10px} section.band .card{background:#fff}
+.card h3{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-2)}
+.card .note{font-size:11.5px}
+table.t th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-3);font-weight:600;border-bottom:1px solid var(--ink-3)}
+table.t tr:nth-child(even) td{background:rgba(70,0,115,.025)}
+table.t td{font-size:12.5px;padding:6px 7px;white-space:nowrap} table.t td:first-child,table.nego td,table.p td,table.kill td,table.anch td:first-child{white-space:normal}
+.board{padding:20px 22px;border-radius:var(--radius-l)}
+.board .top-line{margin-bottom:12px} .board .top-line h2{font-size:19px}
+.tests{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:0 0 14px}
+.tests .tp{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:7px 10px;font-size:11.5px;line-height:1.25;color:rgba(255,255,255,.85);display:flex;flex-direction:column;gap:2px}
+.tests .tp b{font-size:14px;display:flex;justify-content:space-between;align-items:center;color:#fff} .tests .tp.pass b{color:#8fdcae} .tests .tp.warn b{color:#ffd27a} .tests .tp.fail b{color:#ffa3ae}
+.tests .tp small{font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:rgba(255,255,255,.65)}
+.pathbar{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:12px 0 0;background:#fff;display:flex;flex-direction:column;gap:6px}
+.pathbar .delta{font-size:12px;color:var(--ink-3)}
+.insights{margin:12px 0 0;gap:8px} .ins{padding:9px 11px;font-size:12.5px;border-left-width:3px} .ins b{font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+.lenses{margin:12px 0 0;gap:10px} .lens{padding:11px 13px} .lens ul{font-size:12px} .lens h3{font-size:12.5px}
+.strip{margin-top:12px}
+.sxc{border-radius:10px} .kgroup{border-radius:10px} .solver{border-radius:10px}
+@media (max-width:1000px){.tests{grid-template-columns:repeat(2,1fr)}}
+@media print{.band{background:#fff!important;padding:0}}
 /* v8 CxO */
 .lenses{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0 0}
 .lens{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;background:#fff;border-top:3px solid var(--violet)}
@@ -269,8 +305,7 @@ details.conds summary::before{content:"▸";color:var(--violet-deep);transition:
     </div>
     <div class="ticker" id="ticker"></div>
     <div class="actions">
-      <select id="hdr-scen" class="btn" title="Scenario analysed" style="max-width:220px;font-weight:600"></select>
-      <span class="chip" id="src-chip"><i></i>Built-in assumptions</span>
+
       <button class="btn" id="load-btn">Load workbook</button>
       <input id="file" type="file" accept=".xlsx" hidden>
       <button class="btn" id="print-btn" title="Print or save the current page as PDF">Print</button>
@@ -278,7 +313,7 @@ details.conds summary::before{content:"▸";color:var(--violet-deep);transition:
       <button class="btn primary" id="ai-btn">AI analyst</button>
     </div>
   </div>
-  <nav class="subnav"><a href="#verdict">Decision</a><a href="#scenx">Scenarios</a><a href="#pnl">P&amp;L</a><a href="#kpis">Steering KPIs</a><a href="#nego">Negotiation</a><a href="#drivers">Drivers</a><a href="#sensitivity">Sensitivities</a><a href="#whatif">What-if</a><a href="#risk">Risk</a><a href="#reserves">Reserves &amp; capital</a><a href="#reins">Reinsurance</a><a href="#returns">Returns</a><a href="#partner">Partner</a><a href="#bench">Benchmark</a><a href="#params">Parameters</a></nav>
+  <nav class="subnav"><select id="hdr-scen" class="btn small" title="Scenario analysed" style="max-width:230px;font-weight:600;border-radius:999px"></select><span class="chip" id="src-chip"><i></i>Built-in assumptions</span><span class="viewtog"><button id="view-exec" class="on">Executive view</button><button id="view-full">Full view</button></span><a href="#verdict">Decision</a><a href="#scenx">Scenarios</a><a href="#pnl">P&amp;L</a><a href="#kpis">Steering KPIs</a><a href="#nego">Negotiation</a><a href="#whatif">What-if</a><a class="an" href="#sensitivity">Sensitivities</a><a class="an" href="#drivers">Drivers</a><a class="an" href="#risk">Risk</a><a class="an" href="#reins">Reinsurance</a><a class="an" href="#reserves">Reserves &amp; capital</a><a class="an" href="#returns">Returns</a><a class="an" href="#partner">Partner</a><a class="an" href="#bench">Benchmark</a><a class="an" href="#params">Parameters</a></nav>
 </header>
 
 <main>
@@ -287,6 +322,7 @@ details.conds summary::before{content:"▸";color:var(--violet-deep);transition:
     <div class="board">
       <div class="top-line"><h2>Nexius — should Belfius carry this risk?</h2><span class="when" id="board-when"></span><span class="status-badge" id="board-status">–</span></div>
       <div class="scenbar" id="scenbox"></div>
+      <div class="tests" id="v-crit"></div>
       <div class="board-in">
         <div class="dialw">
           <svg viewBox="0 0 320 186" id="dial-svg" aria-hidden="true"></svg>
@@ -299,29 +335,22 @@ details.conds summary::before{content:"▸";color:var(--violet-deep);transition:
     </div>
     <div class="insights" id="insights"></div>
     <div class="lenses" id="lenses"></div>
-    <div class="verdict-lite">
-      <div class="pills" id="v-crit"></div>
-      <div class="path" id="v-path"></div>
-      <details class="conds"><summary id="v-cond-title">Conditions precedent</summary><ul id="v-cond"></ul></details>
-      <div class="delta" id="v-delta" style="font-size:12px;color:var(--ink-2);margin-top:6px"></div>
-    </div>
-    <div class="tiles" id="tiles"></div>
+    <div class="pathbar"><div class="path" id="v-path"></div><details class="conds"><summary id="v-cond-title">Conditions precedent</summary><ul id="v-cond"></ul></details><div class="delta" id="v-delta"></div></div>
     <div class="strip" id="strip"></div>
     <p class="note" style="font-size:12px;color:var(--ink-3);margin:8px 0 0">Scenario cells: the eight workbook scenarios recomputed by the engine on the current parameters (every parameter change re-runs all of them); when a loaded workbook shows a different saved value, it appears in grey. The last cell is the current what-if. Click a cell to load its levers.</p>
-    <div class="card" style="margin-top:16px"><h3>Belfius business-plan anchors versus the twin</h3><table class="t anch" id="anchors"></table><p class="note">Anchors from the data room (Program Overview 24/09: 55 M€ premium opportunity by 2030, year-1 combined ratio ≈ 111.8 %, breakeven ≈ year 5; commission target 5.70 %, loading 9 %, loss ratio 82 %). "Twin, Belfius reference" runs the workbook's scenario 1 on the current parameters; "Twin, current levers" is the what-if. Anchor values are editable in Parameters.</p></div>
-  </section>
-
-  <section id="scenarios">
-    <div class="sec-h"><h2>Scenarios — full comparison table</h2><p>The eight workbook scenarios, your saved what-ifs and the current levers, recomputed by the engine on the current parameters; switch the source to read the values stored in the Excel data table instead.</p><div class="ask" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" id="sc_save">Save current what-if as a scenario</button><button class="btn small" id="sc_export">Export scenarios</button><button class="btn small" id="sc_import">Import</button><input id="sc_file" type="file" accept=".json" hidden><button class="btn small ask" data-ask="scenarios">Ask about this</button></div></div>
-    <div class="mcctl" style="margin-bottom:10px"><label>Source <select id="sc_source"><option value="engine">Engine, current parameters</option><option value="excel">Excel data table (values saved in the workbook)</option></select></label><label>Chart metric <select id="sc_metric"></select></label><span class="note" id="sc_note" style="margin:0"></span></div>
-    <div class="card" style="overflow:auto"><table class="t" id="sc_table"></table></div>
-    <div class="card h260" style="margin-top:16px"><h3 id="sc_chart_title">Metric by scenario</h3><canvas id="c_scen"></canvas></div>
   </section>
   <section id="scenx">
     <div class="sec-h"><h2>Scenarios explained and weighted</h2><p>Each scenario: what it assumes, what it gives, why it differs from the Belfius reference, and how likely it is given everything known about the business. The probabilities are Accenture's judgement, editable; the expected view weights the scenarios by them.</p><button class="btn small ask" data-ask="scenx">Ask about this</button></div>
     <div class="ew" id="ew"></div>
     <div class="card h260" style="margin-bottom:14px"><h3>Combined ratio 2032 by scenario, bars sized by probability — dashed line: probability-weighted expectation</h3><canvas id="c_sx"></canvas></div>
     <div class="sx" id="sx"></div>
+    <div class="card" style="margin-top:16px"><h3>Belfius business-plan anchors versus the twin</h3><table class="t anch" id="anchors"></table><p class="note">Anchors from the data room (Program Overview 24/09: 55 M€ premium opportunity by 2030, year-1 combined ratio ≈ 111.8 %, breakeven ≈ year 5; commission target 5.70 %, loading 9 %, loss ratio 82 %). "Twin, Belfius reference" runs the workbook's scenario 1 on the current parameters; "Twin, current levers" is the what-if. Anchor values are editable in Parameters.</p></div>
+  </section>
+  <section id="scenarios">
+    <div class="sec-h"><h2>Scenarios — full comparison table</h2><p>The eight workbook scenarios, your saved what-ifs and the current levers, recomputed by the engine on the current parameters; switch the source to read the values stored in the Excel data table instead.</p><div class="ask" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" id="sc_save">Save current what-if as a scenario</button><button class="btn small" id="sc_export">Export scenarios</button><button class="btn small" id="sc_import">Import</button><input id="sc_file" type="file" accept=".json" hidden><button class="btn small ask" data-ask="scenarios">Ask about this</button></div></div>
+    <div class="mcctl" style="margin-bottom:10px"><label>Source <select id="sc_source"><option value="engine">Engine, current parameters</option><option value="excel">Excel data table (values saved in the workbook)</option></select></label><label>Chart metric <select id="sc_metric"></select></label><span class="note" id="sc_note" style="margin:0"></span></div>
+    <div class="card" style="overflow:auto"><table class="t" id="sc_table"></table></div>
+    <div class="card h260" style="margin-top:16px"><h3 id="sc_chart_title">Metric by scenario</h3><canvas id="c_scen"></canvas></div>
   </section>
   <section id="pnl">
     <div class="sec-h"><h2>Simplified profit and loss</h2><p>The technical account in millions, by year, with the 2032 structure in percent of net earned premium and the analytical steady state. This is the table to put in front of the steering committee.</p><button class="btn small ask" data-ask="pnl">Ask about this</button></div>
@@ -345,30 +374,6 @@ details.conds summary::before{content:"▸";color:var(--violet-deep);transition:
       </div>
     </div>
   </section>
-  <section id="drivers">
-    <div class="sec-h"><h2>What explains the result</h2><p>Bridge from the Belfius reference (82 % + 5.70 % + 9 % = 96.7 %) to the 2032 combined ratio, and how the components move over the projection.</p><button class="btn small ask" data-ask="drivers">Ask about this</button></div>
-    <div class="grid g2">
-      <div class="card h260"><h3>Combined-ratio bridge, 2032</h3><canvas id="c_bridge"></canvas><p class="note">Each bar is the change versus the reference for that component; the loss-ratio step includes the new-business uplift, the IRSA effect and any stress on frequency or severity.</p></div>
-      <div class="card h260"><h3>Combined-ratio components by year</h3><canvas id="c_comp"></canvas><p class="note">Stacked: loss ratio, commission, Belfius variable loading, fixed costs, change in unexpired-risk reserve. The line is the net combined ratio. 2027 is a nine-month ramp-up year: fixed costs exceed the premium base and the bar is truncated.</p></div>
-    </div>
-    <div class="grid g2" style="margin-top:16px">
-      <div class="card h260"><h3>Premium and in-force against the 55 M€ anchor</h3><canvas id="c_growth"></canvas><p class="note">Bars: gross written premium; line: in-force at year end; dashed: the business-plan anchor for 2030.</p></div>
-      <div class="card h260"><h3>Loss ratio: used versus target, and the commission it triggers</h3><canvas id="c_lr"></canvas><p class="note">The loss ratio used includes the new-business uplift and the IRSA effect; the right axis shows the commission rate read from the grid, after the qualitative gate.</p></div>
-    </div>
-  </section>
-
-  <section id="sensitivity">
-    <div class="sec-h"><h2>What moves it</h2><p>One-at-a-time sensitivities around the current levers, and the values that would make the case work.</p><button class="btn small ask" data-ask="sensitivity">Ask about this</button></div>
-    <div class="grid g32">
-      <div class="card h300"><h3>Tornado — change in combined ratio 2032 (points)</h3><canvas id="c_tornado"></canvas><p class="note" id="tornado-note"></p></div>
-      <div>
-        <div class="solvers" style="grid-template-columns:1fr 1fr" id="solvers"></div>
-        <p class="note">Solved by bisection on the engine, all other levers at their current values.</p>
-      </div>
-    </div>
-    <div class="card" style="margin-top:16px"><h3>Two-way table — combined ratio 2032 by target loss ratio and churn (other levers as set)</h3><div id="heat"></div><p class="note">Green below 97 %, amber to 103 %, red above. The current levers are the centre cell.</p></div>
-  </section>
-
   <section id="whatif">
     <div class="sec-h"><h2>What-if</h2><p>Every view on this page follows these levers. The dashed series on the charts are the workbook's active scenario for comparison.</p><div class="ask" style="display:flex;gap:8px"><button class="btn small" id="reset-btn">Reset to workbook</button><button class="btn small ask" data-ask="whatif">Ask about this</button></div></div>
     <div class="presets" id="presets"></div>
@@ -415,7 +420,28 @@ details.conds summary::before{content:"▸";color:var(--violet-deep);transition:
       <p class="note">The commission grid is scaled from 50 % to 160 % of its current rates, everything else unchanged: Belfius' economic value added in 2032 and Vilavi's cumulative result on the book. The shaded range is the deal zone where both are positive. Vilavi's side rests on the partner-economics assumptions (acquisition cost, fees, servicing).</p></div>
     <div class="card" style="margin-top:16px"><h3>Projection under the current levers</h3><table class="t" id="yrtab"></table></div>
   </section>
-
+  <section id="sensitivity">
+    <div class="sec-h"><h2>What moves it</h2><p>One-at-a-time sensitivities around the current levers, and the values that would make the case work.</p><button class="btn small ask" data-ask="sensitivity">Ask about this</button></div>
+    <div class="grid g32">
+      <div class="card h300"><h3>Tornado — change in combined ratio 2032 (points)</h3><canvas id="c_tornado"></canvas><p class="note" id="tornado-note"></p></div>
+      <div>
+        <div class="solvers" style="grid-template-columns:1fr 1fr" id="solvers"></div>
+        <p class="note">Solved by bisection on the engine, all other levers at their current values.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px"><h3>Two-way table — combined ratio 2032 by target loss ratio and churn (other levers as set)</h3><div id="heat"></div><p class="note">Green below 97 %, amber to 103 %, red above. The current levers are the centre cell.</p></div>
+  </section>
+  <section id="drivers">
+    <div class="sec-h"><h2>What explains the result</h2><p>Bridge from the Belfius reference (82 % + 5.70 % + 9 % = 96.7 %) to the 2032 combined ratio, and how the components move over the projection.</p><button class="btn small ask" data-ask="drivers">Ask about this</button></div>
+    <div class="grid g2">
+      <div class="card h260"><h3>Combined-ratio bridge, 2032</h3><canvas id="c_bridge"></canvas><p class="note">Each bar is the change versus the reference for that component; the loss-ratio step includes the new-business uplift, the IRSA effect and any stress on frequency or severity.</p></div>
+      <div class="card h260"><h3>Combined-ratio components by year</h3><canvas id="c_comp"></canvas><p class="note">Stacked: loss ratio, commission, Belfius variable loading, fixed costs, change in unexpired-risk reserve. The line is the net combined ratio. 2027 is a nine-month ramp-up year: fixed costs exceed the premium base and the bar is truncated.</p></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card h260"><h3>Premium and in-force against the 55 M€ anchor</h3><canvas id="c_growth"></canvas><p class="note">Bars: gross written premium; line: in-force at year end; dashed: the business-plan anchor for 2030.</p></div>
+      <div class="card h260"><h3>Loss ratio: used versus target, and the commission it triggers</h3><canvas id="c_lr"></canvas><p class="note">The loss ratio used includes the new-business uplift and the IRSA effect; the right axis shows the commission rate read from the grid, after the qualitative gate.</p></div>
+    </div>
+  </section>
   <section id="risk">
     <div class="sec-h"><h2>Risk view</h2><p>Monte Carlo on the engine: the loss ratio, the churn and the volume are drawn around the current levers; every draw re-projects the full model.</p><button class="btn small ask" data-ask="risk">Ask about this</button></div>
     <div class="card">
@@ -436,7 +462,28 @@ details.conds summary::before{content:"▸";color:var(--violet-deep);transition:
       <p class="note">Loss ratio: lognormal multiplier (σ as set). Churn, volume and price: normal multipliers, floored. Independent draws; no reserve-development risk beyond the reserving patterns. Seeded, so results repeat.</p>
     </div>
   </section>
-
+  <section id="reins">
+    <div class="sec-h"><h2>Reinsurance</h2><p>Four structures compared on the same book: none, quota share, excess of loss on large claims, both. The engine cedes premium and claims, pays or receives the ceding commission, and applies the standard-formula relief (net volumes, non-proportional factor). Terms are Accenture assumptions until Belfius' programme is known.</p><button class="btn small ask" data-ask="reins">Ask about this</button></div>
+    <div class="grid g23">
+      <div class="card">
+        <h3>Terms</h3>
+        <div class="lever"><span>Structure in the current levers</span><span></span><select id="ri_struct"><option>None</option><option>QS</option><option>XL</option><option>QS+XL</option></select></div>
+        <div class="lever"><span>Quota share — cession</span><span class="v" id="rv_qs"></span><input type="range" id="ri_qs" min="0" max="0.6" step="0.05"></div>
+        <div class="lever"><span>Quota share — ceding commission</span><span class="v" id="rv_qscom"></span><input type="range" id="ri_qscom" min="0" max="0.3" step="0.01"></div>
+        <div class="lever"><span>Excess of loss — premium, % of GWP</span><span class="v" id="rv_rol"></span><input type="range" id="ri_rol" min="0" max="0.10" step="0.005"></div>
+        <div class="lever"><span>Excess of loss — recoveries, % of large claims</span><span class="v" id="rv_rec"></span><input type="range" id="ri_rec" min="0" max="0.9" step="0.05"></div>
+        <div class="lever"><span>Reinsurer probability of default</span><span class="v" id="rv_pd"></span><input type="range" id="ri_pd" min="0" max="0.03" step="0.001"></div>
+        <div class="actions"><button class="btn small" id="ri_opt">Find the structure with the highest EVA 2032</button></div>
+        <p class="note" id="ri_note"></p>
+      </div>
+      <div class="card" style="overflow:auto"><h3>Structures side by side, 2032</h3><table class="t" id="ri_table"></table><p class="note">Reinsurer's combined ratio = (ceded claims + ceding commission) ÷ ceded premium: below about 95 % the terms are plausible for a reinsurer; above 100 % the reinsurer loses money and would not write the treaty — the ceding commission or the rate on line must move.</p></div>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card h220"><h3>Marginal SCR and capital held by structure (€)</h3><canvas id="c_ri_cap"></canvas></div>
+      <div class="card h220"><h3>Cost of reinsurance and EVA by structure (€)</h3><canvas id="c_ri_eva"></canvas></div>
+      <div class="card h220"><h3>Flows for the selected structure, by year (€)</h3><canvas id="c_ri_flows"></canvas></div>
+    </div>
+  </section>
   <section id="reserves">
     <div class="sec-h"><h2>Reserves and capital</h2><p>Run-off of the accident years, the three reserve views, and the standard-formula capital behind the book.</p><button class="btn small ask" data-ask="reserves">Ask about this</button></div>
     <div class="grid g3">
@@ -449,7 +496,25 @@ details.conds summary::before{content:"▸";color:var(--violet-deep);transition:
       <div class="card"><h3>Alignment with Vilavi</h3><table class="t" id="aligntab"></table><p class="note">The commission grid reads a loss ratio that includes reserve movements. The rows show how much of a deterioration Vilavi actually absorbs.</p></div>
     </div>
   </section>
-
+  <section id="returns">
+    <div class="sec-h"><h2>Returns and capital efficiency</h2><p>What the book earns on the capital it consumes, year by year, against the hurdle.</p><button class="btn small ask" data-ask="returns">Ask about this</button></div>
+    <div class="tiles" id="ret_tiles" style="margin-top:0"></div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card h260"><h3>Return on capital versus the hurdle</h3><canvas id="c_roe"></canvas><p class="note">Return on capital = (result after tax + risk-free return on the capital held) ÷ capital held; dashed line: hurdle rate.</p></div>
+      <div class="card h260"><h3>Capital efficiency: premium and value per euro of capital</h3><canvas id="c_eff"></canvas><p class="note">Bars: net earned premium ÷ capital held (premium leverage). Line: economic value added ÷ capital held.</p></div>
+    </div>
+    <div class="card" style="margin-top:16px"><h3>Returns by year</h3><table class="t" id="ret_table"></table></div>
+  </section>
+  <section id="partner">
+    <div class="sec-h"><h2>Partner view — does the book work for Vilavi?</h2><p>The same book seen from the MGA: commissions and client fees against acquisition, servicing and claims-handling costs. A partnership that loses money for the partner is not a stable partnership; the costs here are Accenture assumptions to be replaced by Vilavi's figures (Q-53).</p><button class="btn small ask" data-ask="partner">Ask about this</button></div>
+    <div class="grid g32">
+      <div class="card h260"><h3>Annual result on the Nexius book — Belfius versus Vilavi (€)</h3><canvas id="c_partner"></canvas><p class="note" id="partner-note"></p></div>
+      <div>
+        <div class="solvers" style="grid-template-columns:1fr 1fr" id="p_solvers"></div>
+        <div class="card" style="margin-top:10px"><table class="t" id="partab"></table></div>
+      </div>
+    </div>
+  </section>
   <section id="bench">
     <div class="sec-h"><h2>Benchmark agents</h2><p>Two agents keep the market side of the twin alive: a collector that searches the web through Claude and returns sourced figures you can push into the parameters, and a profile panel that turns comparator quotes into a price position for Nexius.</p><button class="btn small ask" data-ask="bench">Ask about this</button></div>
     <div class="grid" style="grid-template-columns:1fr">
@@ -474,47 +539,6 @@ details.conds summary::before{content:"▸";color:var(--violet-deep);transition:
       </div>
     </div>
     <p class="note">Why no scraping robot: LeLynx, LesFurets and Assurland forbid automated querying in their terms, protect their forms against bots, and a quote requires a real identity and consent; a robot entering invented identities would breach their terms and consumer law, and Belfius could not use the result. Vilavi operates a comparator and published LCA statistics in the Atelier Offre; that data, a panel bought from a comparator, or human mystery shopping are the routes the twin supports.</p>
-  </section>
-  <section id="reins">
-    <div class="sec-h"><h2>Reinsurance</h2><p>Four structures compared on the same book: none, quota share, excess of loss on large claims, both. The engine cedes premium and claims, pays or receives the ceding commission, and applies the standard-formula relief (net volumes, non-proportional factor). Terms are Accenture assumptions until Belfius' programme is known.</p><button class="btn small ask" data-ask="reins">Ask about this</button></div>
-    <div class="grid g23">
-      <div class="card">
-        <h3>Terms</h3>
-        <div class="lever"><span>Structure in the current levers</span><span></span><select id="ri_struct"><option>None</option><option>QS</option><option>XL</option><option>QS+XL</option></select></div>
-        <div class="lever"><span>Quota share — cession</span><span class="v" id="rv_qs"></span><input type="range" id="ri_qs" min="0" max="0.6" step="0.05"></div>
-        <div class="lever"><span>Quota share — ceding commission</span><span class="v" id="rv_qscom"></span><input type="range" id="ri_qscom" min="0" max="0.3" step="0.01"></div>
-        <div class="lever"><span>Excess of loss — premium, % of GWP</span><span class="v" id="rv_rol"></span><input type="range" id="ri_rol" min="0" max="0.10" step="0.005"></div>
-        <div class="lever"><span>Excess of loss — recoveries, % of large claims</span><span class="v" id="rv_rec"></span><input type="range" id="ri_rec" min="0" max="0.9" step="0.05"></div>
-        <div class="lever"><span>Reinsurer probability of default</span><span class="v" id="rv_pd"></span><input type="range" id="ri_pd" min="0" max="0.03" step="0.001"></div>
-        <div class="actions"><button class="btn small" id="ri_opt">Find the structure with the highest EVA 2032</button></div>
-        <p class="note" id="ri_note"></p>
-      </div>
-      <div class="card" style="overflow:auto"><h3>Structures side by side, 2032</h3><table class="t" id="ri_table"></table><p class="note">Reinsurer's combined ratio = (ceded claims + ceding commission) ÷ ceded premium: below about 95 % the terms are plausible for a reinsurer; above 100 % the reinsurer loses money and would not write the treaty — the ceding commission or the rate on line must move.</p></div>
-    </div>
-    <div class="grid g3" style="margin-top:16px">
-      <div class="card h220"><h3>Marginal SCR and capital held by structure (€)</h3><canvas id="c_ri_cap"></canvas></div>
-      <div class="card h220"><h3>Cost of reinsurance and EVA by structure (€)</h3><canvas id="c_ri_eva"></canvas></div>
-      <div class="card h220"><h3>Flows for the selected structure, by year (€)</h3><canvas id="c_ri_flows"></canvas></div>
-    </div>
-  </section>
-  <section id="returns">
-    <div class="sec-h"><h2>Returns and capital efficiency</h2><p>What the book earns on the capital it consumes, year by year, against the hurdle.</p><button class="btn small ask" data-ask="returns">Ask about this</button></div>
-    <div class="tiles" id="ret_tiles" style="margin-top:0"></div>
-    <div class="grid g2" style="margin-top:16px">
-      <div class="card h260"><h3>Return on capital versus the hurdle</h3><canvas id="c_roe"></canvas><p class="note">Return on capital = (result after tax + risk-free return on the capital held) ÷ capital held; dashed line: hurdle rate.</p></div>
-      <div class="card h260"><h3>Capital efficiency: premium and value per euro of capital</h3><canvas id="c_eff"></canvas><p class="note">Bars: net earned premium ÷ capital held (premium leverage). Line: economic value added ÷ capital held.</p></div>
-    </div>
-    <div class="card" style="margin-top:16px"><h3>Returns by year</h3><table class="t" id="ret_table"></table></div>
-  </section>
-  <section id="partner">
-    <div class="sec-h"><h2>Partner view — does the book work for Vilavi?</h2><p>The same book seen from the MGA: commissions and client fees against acquisition, servicing and claims-handling costs. A partnership that loses money for the partner is not a stable partnership; the costs here are Accenture assumptions to be replaced by Vilavi's figures (Q-53).</p><button class="btn small ask" data-ask="partner">Ask about this</button></div>
-    <div class="grid g32">
-      <div class="card h260"><h3>Annual result on the Nexius book — Belfius versus Vilavi (€)</h3><canvas id="c_partner"></canvas><p class="note" id="partner-note"></p></div>
-      <div>
-        <div class="solvers" style="grid-template-columns:1fr 1fr" id="p_solvers"></div>
-        <div class="card" style="margin-top:10px"><table class="t" id="partab"></table></div>
-      </div>
-    </div>
   </section>
   <section id="params">
     <div class="sec-h"><h2>Parameters</h2><p>Every assumption of the model, read from the workbook when one is loaded. Edit any value: the whole page recomputes. Flagged rows are Accenture assumptions or Vilavi data still required.</p><button class="btn small ask" data-ask="gaps">Ask about this</button></div>
@@ -773,7 +797,7 @@ const SHEETS = [["Dashboard", true], ["Scenario_Compare", true], ["Inputs", true
 const S = { wb: null, fileName: "", digests: {}, inputs: null, scen: E.SCEN_DEFAULT.map(s => Object.fromEntries(E.MKEYS.map((k, i) => [k, s.m[i]]))), scenNames: E.SCEN_DEFAULT.map(s => s.name), base: null, cur: null, curInputs: null, curMult: null, wbCr: null, charts: {}, history: [], mc: null, presetIdx: 1, gaps: [] };
 const fmt = (v, k) => { if (typeof v !== "number" || !isFinite(v)) return v == null ? "–" : (k === "yrs" ? "beyond 2032" : String(v)); if (k === "pct") return (v * 100).toFixed(1) + " %"; if (k === "pct2") return (v * 100).toFixed(2) + " %"; if (k === "pts") return (v * 100 >= 0 ? "+" : "") + (v * 100).toFixed(1) + " pts"; if (k === "year") return v === 9999 ? "after 2032" : String(v); if (k === "yrs") return v.toFixed(1) + " yrs"; if (k === "x") return v.toFixed(2) + "×"; if (k === "m") return (v / 1e6).toFixed(1) + " M€"; return Math.round(v).toLocaleString("en-GB"); };
 const rag = cr => cr < 0.97 ? "ok" : cr <= 1.03 ? "warn" : "bad";
-if (window.Chart) { Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue("--font"); Chart.defaults.font.size = 11; Chart.defaults.color = "#5c5a66"; Chart.defaults.borderColor = "#eeebf3"; Chart.defaults.plugins.legend.labels.boxWidth = 12; Chart.defaults.plugins.legend.labels.boxHeight = 12; Chart.defaults.plugins.tooltip.callbacks.label = function (ctx) { const raw = Array.isArray(ctx.raw) ? ctx.raw[1] - ctx.raw[0] : ctx.raw; const v = typeof raw === "number" ? raw : (ctx.parsed && typeof ctx.parsed.y === "number" ? ctx.parsed.y : null); if (v == null) return ctx.dataset.label || ""; const big = Math.abs(v) >= 1000; const txt = big ? (Math.abs(v) >= 1e6 ? (v / 1e6).toFixed(2) + " M€" : Math.round(v).toLocaleString("en-GB")) : (Math.abs(v) <= 5 ? (v * 100).toFixed(1) + " %" : v.toFixed(2)); return (ctx.dataset.label ? ctx.dataset.label + ": " : "") + txt; }; }
+if (window.Chart) { Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue("--font"); Chart.defaults.font.size = 11; Chart.defaults.color = "#5c5a66"; Chart.defaults.borderColor = "#edeaf2"; Chart.defaults.plugins.legend.labels.boxWidth = 10; Chart.defaults.plugins.legend.labels.boxHeight = 10; Chart.defaults.plugins.legend.labels.usePointStyle = true; Chart.defaults.elements.point.radius = 2.5; Chart.defaults.elements.line.borderWidth = 2; Chart.defaults.elements.bar.borderRadius = 3; Chart.defaults.scales.category.grid = { display: false }; Chart.defaults.plugins.tooltip.backgroundColor = "#2a0a45"; Chart.defaults.plugins.tooltip.titleFont = { size: 11 }; Chart.defaults.plugins.tooltip.bodyFont = { size: 11 }; Chart.defaults.plugins.tooltip.callbacks.label = function (ctx) { const raw = Array.isArray(ctx.raw) ? ctx.raw[1] - ctx.raw[0] : ctx.raw; const v = typeof raw === "number" ? raw : (ctx.parsed && typeof ctx.parsed.y === "number" ? ctx.parsed.y : null); if (v == null) return ctx.dataset.label || ""; const big = Math.abs(v) >= 1000; const txt = big ? (Math.abs(v) >= 1e6 ? (v / 1e6).toFixed(2) + " M€" : Math.round(v).toLocaleString("en-GB")) : (Math.abs(v) <= 5 ? (v * 100).toFixed(1) + " %" : v.toFixed(2)); return (ctx.dataset.label ? ctx.dataset.label + ": " : "") + txt; }; }
 const C = { violet: "#7500c0", violet2: "#a100ff", tint: "#d9b8ff", grey: "#b8b4c2", ink: "#14131a", ok: "#1e7b4e", warn: "#a86b00", bad: "#b3261e" };
 function chart(id, cfg) { if (!window.Chart) return; if (S.charts[id]) S.charts[id].destroy(); S.charts[id] = new Chart($(id), cfg); }
 const pctAxis = { ticks: { callback: v => Math.round(v * 100) + " %" } }, eurAxis = { ticks: { callback: (v, i, t) => { const span = t.length > 1 ? Math.abs(t[t.length - 1].value - t[0].value) : 0; return (v / 1e6).toFixed(span < 8e6 ? 1 : 0) + " M€"; } } };
@@ -820,7 +844,11 @@ function renderTicker(r) {
     "<span class='tk " + (r.S.roe[5] >= (S.curInputs || {}).in_hurdle ? "ok" : r.S.roe[5] >= 0 ? "warn" : "bad") + "'><small>RoE 2032</small><b>" + fmt(r.S.roe[5], "pct") + "</b></span>";
 }
 document.querySelectorAll("main > section").forEach(sec => { const h = sec.querySelector(".sec-h"); if (!h) return; const t = document.createElement("button"); t.className = "tog"; t.title = "Collapse / expand"; t.textContent = "▾"; t.addEventListener("click", () => sec.classList.toggle("collapsed")); h.insertBefore(t, h.firstChild); });
-$("params").classList.add("collapsed");
+const EXEC_HIDE = ["scenarios", "sensitivity", "drivers", "risk", "reins", "reserves", "returns", "partner", "bench", "params"];
+function setView(mode) { S.view = mode; document.body.classList.toggle("exec", mode === "exec"); document.querySelectorAll("main > section").forEach(sec => { if (mode === "exec") sec.classList.toggle("collapsed", EXEC_HIDE.includes(sec.id)); else sec.classList.toggle("collapsed", sec.id === "params"); }); $("view-exec").classList.toggle("on", mode === "exec"); $("view-full").classList.toggle("on", mode !== "exec"); try { localStorage.setItem("nexius_view", mode); } catch (e) {} }
+$("view-exec").addEventListener("click", () => setView("exec")); $("view-full").addEventListener("click", () => setView("full"));
+let _v = "exec"; try { _v = localStorage.getItem("nexius_view") || "exec"; } catch (e) {} setView(_v);
+["scenx", "pnl", "kpis", "nego"].forEach(id => $(id).classList.add("band"));
 const navLinks = [...document.querySelectorAll(".subnav a")];
 const io = new IntersectionObserver(entries => { entries.forEach(en => { if (en.isIntersecting) navLinks.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id)); }); }, { rootMargin: "-30% 0px -60% 0px" });
 document.querySelectorAll("main > section").forEach(sec => io.observe(sec));
@@ -863,7 +891,7 @@ function renderVerdict() {
   const r = S.cur, b = S.base, cr = r.L.rCr[5]; const d = decide(r); const I = S.curInputs;
   $("dial-val").textContent = fmt(cr, "pct"); $("dial-val").style.color = cr < 0.97 ? "#8fdcae" : cr <= 1.03 ? "#ffd27a" : "#ffa3ae"; drawDial(cr);
   const bs = $("board-status"); bs.className = "status-badge " + d.cls; bs.textContent = d.label; bs.title = d.sub;
-  $("v-crit").innerHTML = criteria(r).map(c => "<div class='pill " + c.st + "' title='" + c.t.replace(/'/g, "’") + "'><small>" + c.k + " · " + c.t.split(" (")[0].slice(0, 46) + "</small><b>" + c.v + "<i>" + (c.st === "pass" ? "✓" : c.st === "warn" ? "!" : "✗") + "</i></b></div>").join("");
+  $("v-crit").innerHTML = criteria(r).map(c => "<div class='tp " + c.st + "' title='" + c.t.replace(/'/g, "’") + "'><small>" + c.k + "</small><b>" + c.v + "<span>" + (c.st === "pass" ? "✓" : c.st === "warn" ? "!" : "✗") + "</span></b></div>").join("");
   const ps = S.partnerSolv || {}; const path = [];
   if (r.L.rCr[5] >= 0.967 && isFinite((S.solvers || {}).lrCr)) path.push("loss ratio ≤ " + fmt(S.solvers.lrCr, "pct") + " for 96.7 %");
   if (r.S.eva[5] < 0 && isFinite((S.solvers || {}).lrEva)) path.push("loss ratio ≤ " + fmt(S.solvers.lrEva, "pct") + " for EVA ≥ 0");
@@ -882,7 +910,7 @@ function renderVerdict() {
   $("v-delta").textContent = "Versus the workbook's active scenario: combined ratio 2032 " + fmt(cr - b.L.rCr[5], "pts") + ", cumulative result 2032 " + fmt(r.L.cum[5] - b.L.cum[5]) + " €, EVA 2032 " + fmt(r.S.eva[5] - b.S.eva[5]) + " €.";
   const tiles = [["Steady-state CR", fmt(r.kpi.crSs, "pct"), "analytical, at maturity"], ["First positive year", fmt(r.kpi.firstPos, "year"), "annual result ≥ 0"], ["Payback", fmt(r.kpi.payback, "year"), "cumulative ≥ 0"], ["IRR to 2032", isFinite(r.kpi.irr) ? fmt(r.kpi.irr, "pct") : "n/a", "with in-force value: " + (isFinite(r.kpi.irrTV) ? fmt(r.kpi.irrTV, "pct") : "n/a")],
     ["NPV at hurdle", fmt(r.kpi.npvHurdle, "m"), "with in-force value: " + fmt(r.kpi.npvTV, "m")], ["Peak capital contributions", fmt(r.kpi.peakContrib, "m"), "capital held + losses"], ["EVA 2032", fmt(r.S.eva[5], "m"), "SCR " + fmt(r.S.scrPct[5], "pct") + " of NEP"], ["Margin per contract at maturity", fmt(r.kpi.marginSs, "n") + " €/yr", fmt(r.kpi.ltvSs, "n") + " € over " + r.kpi.lifeSs.toFixed(1) + " years"]];
-  $("tiles").innerHTML = tiles.map(([a, v, s]) => "<div class='tile'><small>" + a + "</small><b>" + v + "</b><i>" + s + "</i></div>").join("");
+  S.tiles = tiles;
 }
 function renderAnchors() {
   const I = S.curInputs, ref = S.ref, cur = S.cur;
